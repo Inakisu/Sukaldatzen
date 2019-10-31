@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10">
+
+    <LinearLayout
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8.5"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/textNombreCazuela"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_corners"
+            android:ellipsize="marquee"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <com.libRG.CustomTextView
+            android:gravity="center"
+            android:id="@+id/temperatureIndicator"
+            android:layout_width="175dp"
+            android:layout_height="175dp"
+            android:layout_margin="30dp"
+            android:padding="10dp"
+            android:textColor="@color/md_white"
+            android:textStyle="bold"
+            android:textSize="40dp"
+            app:lib_setRoundedBGColor="@color/material_grey300"
+            android:visibility="visible"
+            app:lib_setRadius="50dp"
+            app:lib_setRoundedView="true"
+            app:lib_setShape="oval"
+            app:lib_enable_ripple_effect="true"
+            app:lib_setRippleColor="@color/colorPrimaryDark" />
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/alarmLayout"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_below="@+id/temperatureIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                app:cardBackgroundColor="@color/colorPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:padding="5dp"
+                        android:textColor="@color/md_white"
+                        android:background="#33000000"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Alarma temperatura"/>
+
+                    <LinearLayout
+                        android:background="@color/material_grey300"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="10">
+
+                        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                            app:dsb_allowTrackClickToDrag="false"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:id="@+id/alarmTemperatureSeekbar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="9"
+                            app:dsb_min="0"
+                            app:dsb_max="180" />
+
+
+                        <com.libRG.CustomTextView
+                            android:gravity="center"
+                            android:id="@+id/bSetAlarm"
+                            android:layout_margin="5dp"
+                            android:textColor="@color/md_white"
+                            android:text="Set"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="30dp"
+                            android:textStyle="bold"
+                            android:textSize="10dp"
+                            app:lib_setRoundedBGColor="#33000000"
+                            android:visibility="visible"
+                            app:lib_setRadius="50dp"
+                            app:lib_setRoundedBorderColor="@color/colorAccent"
+                            app:lib_setRoundedView="true"
+                            app:lib_setShape="oval"
+                            app:lib_enable_ripple_effect="true"
+                            app:lib_setRippleColor="@color/colorPrimaryDark" />
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                app:cardBackgroundColor="@color/colorPrimary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:padding="5dp"
+                        android:textColor="@color/md_white"
+                        android:background="#33000000"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Timer (min.)"/>
+
+                    <LinearLayout
+                        android:background="@color/material_grey300"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="10">
+
+                        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:id="@+id/alarmTimeSeekbar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="9"
+                            app:dsb_min="0"
+                            app:dsb_max="60"
+                            app:dsb_allowTrackClickToDrag="false"/>
+
+
+                        <com.libRG.CustomTextView
+                            android:gravity="center"
+                            android:id="@+id/bSetTime"
+                            android:layout_margin="5dp"
+                            android:textColor="@color/md_white"
+                            android:text="Set"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="30dp"
+                            android:textStyle="bold"
+                            android:textSize="10dp"
+                            app:lib_setRoundedBGColor="#33000000"
+                            android:visibility="visible"
+                            app:lib_setRadius="50dp"
+                            app:lib_setRoundedBorderColor="@color/colorAccent"
+                            app:lib_setRoundedView="true"
+                            app:lib_setShape="oval"
+                            app:lib_enable_ripple_effect="true"
+                            app:lib_setRippleColor="@color/colorPrimaryDark" />
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/cazuelaStats"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_alignParentTop="true"
+            android:padding="5dp"
+            android:id="@+id/pageIndicador"
+            android:background="#33000000"
+            android:textColor="@color/md_white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:gravity="center"
+            android:layout_below="@id/pageIndicador"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="10">
+
+                <TextView
+                    android:textSize="12dp"
+                    android:gravity="center"
+                    android:textColor="@color/md_white"
+                    android:id="@+id/cazuelaMAC"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:textSize="12dp"
+                    android:gravity="center"
+                    android:textColor="@color/md_white"
+                    android:id="@+id/cazuelaStatus"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="10">
+
+                <TextView
+                    android:textSize="12dp"
+                    android:gravity="center"
+                    android:textColor="@color/md_white"
+                    android:id="@+id/temperatureThreshold"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:textSize="12dp"
+                    android:gravity="center"
+                    android:textColor="@color/md_white"
+                    android:id="@+id/timeAlarm"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>
