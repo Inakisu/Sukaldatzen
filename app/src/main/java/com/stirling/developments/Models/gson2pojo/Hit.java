@@ -1,4 +1,4 @@
-package com.stirling.developments.Models.jackson;
+package com.stirling.developments.Models.gson2pojo;
 
 import java.util.HashMap;
 import java.util.Map;

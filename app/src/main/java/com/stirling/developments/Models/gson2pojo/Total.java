@@ -1,4 +1,4 @@
-package com.stirling.developments.Models.jackson;
+package com.stirling.developments.Models.gson2pojo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "value",
         "relation"
 })
-public class Total_ {
+public class Total {
 
     @JsonProperty("value")
     private Integer value;

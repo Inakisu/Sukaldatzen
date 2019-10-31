@@ -3,8 +3,7 @@ package com.stirling.developments.Utils;
 import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
 import com.stirling.developments.Models.HitsObjects.HitsObjectM;
-import com.stirling.developments.Models.Aggregations.HitsObjectMagg;
-import com.stirling.developments.Models.jackson.Aggregations;
+import com.stirling.developments.Models.gson2pojo.Aggregations;
 
 import java.util.Map;
 

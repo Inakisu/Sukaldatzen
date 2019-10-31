@@ -18,22 +18,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.libRG.CustomTextView;
-import com.stirling.developments.Models.Aggregations.HitsListMAgg;
-import com.stirling.developments.Models.Aggregations.HitsNomMAgg;
-import com.stirling.developments.Models.Aggregations.HitsObjectMagg;
-import com.stirling.developments.Models.Aggregations.HitsSubhitMAgg;
 import com.stirling.developments.Models.POJOs.Cazuela;
 import com.stirling.developments.Models.HitsLists.HitsList;
 import com.stirling.developments.Models.HitsLists.HitsListC;
 import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
-import com.stirling.developments.Models.POJOs.Medicion;
 import com.stirling.developments.Models.POJOs.Usuario;
-import com.stirling.developments.Models.jackson.Aggregations;
-import com.stirling.developments.Models.jackson.Hits_;
-import com.stirling.developments.Models.jackson.MyAgg;
-import com.stirling.developments.Models.jackson.Source;
-import com.stirling.developments.Models.jackson.Source_;
+import com.stirling.developments.Models.gson2pojo.Aggregations;
+import com.stirling.developments.Models.gson2pojo.Hit;
+import com.stirling.developments.Models.gson2pojo.Hits;
+import com.stirling.developments.Models.gson2pojo.Hits_;
+import com.stirling.developments.Models.gson2pojo.MyAgg;
+import com.stirling.developments.Models.gson2pojo.Source_;
 import com.stirling.developments.R;
 import com.stirling.developments.Utils.Constants;
 import com.stirling.developments.Utils.ElasticSearchAPI;
@@ -325,14 +321,16 @@ public class VisualizationFragment extends Fragment
                 Aggregations aggregations = new Aggregations();
                 MyAgg  myAgg = new MyAgg();
                 Hits_ hits_ = new Hits_();
-
+                Hits hits = new Hits();
+                Hit hit = new Hit();
+                hits_ = aggregations.getMyAgg().getHits();
                 String jsonResponse = "";
                 try{
                     Log.d(TAG, "onResponse: server response: " + response.toString());
 
                     if(response.isSuccessful()){
 //                        hitsNomMAgg = response.body().getHits();
-                        hits_ = response.body().getMyAgg().getHits();
+                        //hits = response.body().getMyAgg().getHits().getHits();
 //                        hitsSubhitMAgg = hitsNomMAgg.getHits();
 //                        hitsListMAgg = hitsSubhitMAgg.getHits();
                         Log.d(TAG, " -----------onResponse: la response: "+response.body()
@@ -341,7 +339,7 @@ public class VisualizationFragment extends Fragment
                         jsonResponse = response.errorBody().string(); //error response body
                     }
 
-                    Log.d(TAG, "onResponse: hits: " + hits_);
+                    Log.d(TAG, "onResponse: hits: " + hits_.getHits().toString());
 
                     for(int i = 0; i < hits_.getHits().size(); i++){//hitsListMAgg.getMedicionIndex().size(); i++){
                         Log.d(TAG, "onResponse: data: " + hits_.getHits()

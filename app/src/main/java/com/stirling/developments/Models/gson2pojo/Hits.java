@@ -1,4 +1,6 @@
-package com.stirling.developments.Models.jackson;
+package com.stirling.developments.Models.gson2pojo;
+
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,44 +18,44 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "max_score",
         "hits"
 })
-public class Hits_ {
+public class Hits {
 
     @JsonProperty("total")
-    private Total_ total;
+    private Total total;
     @JsonProperty("max_score")
-    private Object maxScore;
+    private Double maxScore;
     @JsonProperty("hits")
-    private List<Hit_> hits = null;
+    private List<Hit> hits = null;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("total")
-    public Total_ getTotal() {
+    public Total getTotal() {
         return total;
     }
 
     @JsonProperty("total")
-    public void setTotal(Total_ total) {
+    public void setTotal(Total total) {
         this.total = total;
     }
 
     @JsonProperty("max_score")
-    public Object getMaxScore() {
+    public Double getMaxScore() {
         return maxScore;
     }
 
     @JsonProperty("max_score")
-    public void setMaxScore(Object maxScore) {
+    public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
     }
 
     @JsonProperty("hits")
-    public List<Hit_> getHits() {
+    public List<Hit> getHits() {
         return hits;
     }
 
     @JsonProperty("hits")
-    public void setHits(List<Hit_> hits) {
+    public void setHits(List<Hit> hits) {
         this.hits = hits;
     }
 

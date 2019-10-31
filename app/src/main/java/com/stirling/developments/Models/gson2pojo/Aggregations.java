@@ -1,5 +1,4 @@
-package com.stirling.developments.Models.jackson;
-
+package com.stirling.developments.Models.gson2pojo;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -11,36 +10,23 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "value",
-        "relation"
+        "my_agg"
 })
-public class Total {
+public class Aggregations {
 
-    @JsonProperty("value")
-    private Integer value;
-    @JsonProperty("relation")
-    private String relation;
+    @JsonProperty("my_agg")
+    private MyAgg myAgg;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("value")
-    public Integer getValue() {
-        return value;
+    @JsonProperty("my_agg")
+    public MyAgg getMyAgg() {
+        return myAgg;
     }
 
-    @JsonProperty("value")
-    public void setValue(Integer value) {
-        this.value = value;
-    }
-
-    @JsonProperty("relation")
-    public String getRelation() {
-        return relation;
-    }
-
-    @JsonProperty("relation")
-    public void setRelation(String relation) {
-        this.relation = relation;
+    @JsonProperty("my_agg")
+    public void setMyAgg(MyAgg myAgg) {
+        this.myAgg = myAgg;
     }
 
     @JsonAnyGetter
@@ -54,3 +40,4 @@ public class Total {
     }
 
 }
+
