@@ -332,6 +332,7 @@ public class VisualizationFragment extends Fragment
 
                     if(response.isSuccessful()){
 //                        hitsNomMAgg = response.body().getHits();
+                        hits_ = response.body().getMyAgg().getHits();
 //                        hitsSubhitMAgg = hitsNomMAgg.getHits();
 //                        hitsListMAgg = hitsSubhitMAgg.getHits();
                         Log.d(TAG, " -----------onResponse: la response: "+response.body()
