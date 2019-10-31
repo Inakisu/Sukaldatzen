@@ -1,43 +1,19 @@
 package com.stirling.developments.Models.gson2pojo;
-import java.util.HashMap;
-import java.util.Map;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "my_agg"
-})
 public class Aggregations {
 
-    @JsonProperty("my_agg")
+    @SerializedName("my_agg")
+    @Expose
     private MyAgg myAgg;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("my_agg")
     public MyAgg getMyAgg() {
         return myAgg;
     }
 
-    @JsonProperty("my_agg")
     public void setMyAgg(MyAgg myAgg) {
         this.myAgg = myAgg;
     }
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
-
 }
-
