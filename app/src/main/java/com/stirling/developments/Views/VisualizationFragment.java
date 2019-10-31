@@ -29,6 +29,11 @@ import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
 import com.stirling.developments.Models.POJOs.Medicion;
 import com.stirling.developments.Models.POJOs.Usuario;
+import com.stirling.developments.Models.jackson.Aggregations;
+import com.stirling.developments.Models.jackson.Hits_;
+import com.stirling.developments.Models.jackson.MyAgg;
+import com.stirling.developments.Models.jackson.Source;
+import com.stirling.developments.Models.jackson.Source_;
 import com.stirling.developments.R;
 import com.stirling.developments.Utils.Constants;
 import com.stirling.developments.Utils.ElasticSearchAPI;
@@ -69,7 +74,7 @@ public class VisualizationFragment extends Fragment
     private String mElasticSearchPassword = Constants.elasticPassword;
     private ArrayList<Usuario> mUsuario; //Lista donde se guardan los términos que buscaremos //O las resp.
     private ArrayList<Cazuela> mCazuela; // Lista donde se almacenarán las respuestas de la query de las cazuelas
-    private ArrayList<Medicion> mMedicion; //Lista donde se almacenarán las respuestas de la query de las mediciones
+    private ArrayList<Source_> mMedicion; // Medicion//Lista donde se almacenarán las respuestas de la query de las mediciones
 
     private FirebaseAuth mAuth;
     private Retrofit retrofit;
@@ -260,7 +265,7 @@ public class VisualizationFragment extends Fragment
     }
 
     private void actualizarTemperatura() {
-        mMedicion = new ArrayList<Medicion>();
+        mMedicion = new ArrayList<Source_>(); //Medicion
 //        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
         String macC = "22:22:22:22";
         //Adaptamos el codigo de obtener cazuelas para obtener temperaturas
@@ -309,34 +314,38 @@ public class VisualizationFragment extends Fragment
         //Creamos el body con el JSON
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-        Call<HitsObjectMagg> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
+        Call<Aggregations> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
 //antes hitsobjetcM
-        call.enqueue(new Callback<HitsObjectMagg>() {
+        call.enqueue(new Callback<Aggregations>() {
             @Override
-            public void onResponse(Call<HitsObjectMagg> call, Response<HitsObjectMagg> response) {
-                HitsNomMAgg hitsNomMAgg = new HitsNomMAgg();
-                HitsSubhitMAgg hitsSubhitMAgg = new HitsSubhitMAgg();
-                HitsListMAgg hitsListMAgg = new HitsListMAgg();
+            public void onResponse(Call<Aggregations> call, Response<Aggregations> response) {
+//                HitsNomMAgg hitsNomMAgg = new HitsNomMAgg();
+//                HitsSubhitMAgg hitsSubhitMAgg = new HitsSubhitMAgg();
+//                HitsListMAgg hitsListMAgg = new HitsListMAgg();
+                Aggregations aggregations = new Aggregations();
+                MyAgg  myAgg = new MyAgg();
+                Hits_ hits_ = new Hits_();
+
                 String jsonResponse = "";
                 try{
                     Log.d(TAG, "onResponse: server response: " + response.toString());
 
                     if(response.isSuccessful()){
-                        hitsNomMAgg = response.body().getHits();
-                        hitsSubhitMAgg = hitsNomMAgg.getHits();
-                        hitsListMAgg = hitsSubhitMAgg.getHits();
+//                        hitsNomMAgg = response.body().getHits();
+//                        hitsSubhitMAgg = hitsNomMAgg.getHits();
+//                        hitsListMAgg = hitsSubhitMAgg.getHits();
                         Log.d(TAG, " -----------onResponse: la response: "+response.body()
                                 .toString());
                     }else{
                         jsonResponse = response.errorBody().string(); //error response body
                     }
 
-                    Log.d(TAG, "onResponse: hits: " + hitsListMAgg);
+                    Log.d(TAG, "onResponse: hits: " + hits_);
 
-                    for(int i = 0; i < hitsListMAgg.getMedicionIndex().size(); i++){
-                        Log.d(TAG, "onResponse: data: " + hitsListMAgg.getMedicionIndex()
-                                .get(i).getMedicion().toString());
-                        mMedicion.add(hitsListMAgg.getMedicionIndex().get(i).getMedicion());
+                    for(int i = 0; i < hits_.getHits().size(); i++){//hitsListMAgg.getMedicionIndex().size(); i++){
+                        Log.d(TAG, "onResponse: data: " + hits_.getHits()
+                                .get(i).getSource().toString());
+                        mMedicion.add(hits_.getHits().get(i).getSource());
                     }
 
                     Log.d(TAG, "onResponse: size: " + mMedicion.size());
@@ -354,7 +363,7 @@ public class VisualizationFragment extends Fragment
             }
 
             @Override
-            public void onFailure(Call<HitsObjectMagg> call, Throwable t) {
+            public void onFailure(Call<Aggregations> call, Throwable t) {
 
             }
         });
