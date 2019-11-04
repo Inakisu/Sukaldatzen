@@ -2,6 +2,8 @@ package com.stirling.developments.Models.gson2pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Hit {
 
     @SerializedName("_index")
@@ -23,6 +25,10 @@ public class Hit {
     @SerializedName("_source")
     @Expose
     private Source source;
+
+    @SerializedName("sort")
+    @Expose
+    private List<Integer> sort;
 
     public String getIndex() {
         return index;
@@ -52,7 +58,7 @@ public class Hit {
         return score;
     }
 
-    public void setScore(Double score) {
+    public void setScore(double score) {
         this.score = score;
     }
 
@@ -63,5 +69,9 @@ public class Hit {
     public void setSource(Source source) {
         this.source = source;
     }
+
+    public List<Integer> getSort() {return sort;}
+
+    public void setSort(List<Integer> sort) { this.sort = sort; }
 
 }

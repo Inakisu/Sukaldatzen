@@ -269,7 +269,7 @@ public class VisualizationFragment extends Fragment
                 mElasticSearchPassword));
         String searchString = "";
         try {
-            queryJson = "\n" +
+            queryJson = "{\n" +
                     "  \"query\":{ \n" +
                     "    \"bool\":{\n" +
                     "      \"must\": [\n" +

@@ -6,46 +6,46 @@ public class Shards {
 
     @SerializedName("total")
     @Expose
-    private Integer total;
+    private int total;
     @SerializedName("successful")
     @Expose
-    private Integer successful;
+    private int successful;
     @SerializedName("skipped")
     @Expose
-    private Integer skipped;
+    private int skipped;
     @SerializedName("failed")
     @Expose
-    private Integer failed;
+    private int failed;
 
-    public Integer getTotal() {
+    public int getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(int total) {
         this.total = total;
     }
 
-    public Integer getSuccessful() {
+    public int getSuccessful() {
         return successful;
     }
 
-    public void setSuccessful(Integer successful) {
+    public void setSuccessful(int successful) {
         this.successful = successful;
     }
 
-    public Integer getSkipped() {
+    public int getSkipped() {
         return skipped;
     }
 
-    public void setSkipped(Integer skipped) {
+    public void setSkipped(int skipped) {
         this.skipped = skipped;
     }
 
-    public Integer getFailed() {
+    public int getFailed() {
         return failed;
     }
 
-    public void setFailed(Integer failed) {
+    public void setFailed(int failed) {
         this.failed = failed;
     }
 

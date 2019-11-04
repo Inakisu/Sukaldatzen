@@ -64,7 +64,7 @@ public class Source {
         return tempsInt;
     }
 
-    public void setTempsInt(Integer tempsInt) {
+    public void setTempsInt(int tempsInt) {
         this.tempsInt = tempsInt;
     }
 
@@ -72,7 +72,7 @@ public class Source {
         return tempsTapa;
     }
 
-    public void setTempsTapa(Integer tempsTapa) {
+    public void setTempsTapa(int tempsTapa) {
         this.tempsTapa = tempsTapa;
     }
 
