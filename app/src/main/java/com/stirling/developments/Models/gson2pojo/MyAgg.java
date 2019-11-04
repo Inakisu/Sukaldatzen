@@ -6,13 +6,13 @@ public class MyAgg {
 
     @SerializedName("hits")
     @Expose
-    private Hits_ hits;
+    private Hits hits;
 
-    public Hits_ getHits() {
+    public Hits getHits() {
         return hits;
     }
 
-    public void setHits(Hits_ hits) {
+    public void setHits(Hits hits) {
         this.hits = hits;
     }
 

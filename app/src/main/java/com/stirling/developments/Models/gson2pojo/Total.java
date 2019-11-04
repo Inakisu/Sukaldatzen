@@ -6,12 +6,13 @@ public class Total {
 
     @SerializedName("value")
     @Expose
-    private Integer value;
+    private int value;
+
     @SerializedName("relation")
     @Expose
     private String relation;
 
-    public Integer getValue() {
+    public int getValue() {
         return value;
     }
 

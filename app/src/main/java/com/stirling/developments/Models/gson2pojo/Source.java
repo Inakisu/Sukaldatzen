@@ -7,21 +7,26 @@ public class Source {
     @SerializedName("idMac")
     @Expose
     private String idMac;
+
     @SerializedName("medicionFechaInicio")
     @Expose
     private String medicionFechaInicio;
+
     @SerializedName("medicionFechaFin")
     @Expose
     private String medicionFechaFin;
+
     @SerializedName("timestamp")
     @Expose
     private String timestamp;
+
     @SerializedName("tempsInt")
     @Expose
-    private Integer tempsInt;
+    private int tempsInt;
+
     @SerializedName("tempsTapa")
     @Expose
-    private Integer tempsTapa;
+    private int tempsTapa;
 
     public String getIdMac() {
         return idMac;
@@ -55,7 +60,7 @@ public class Source {
         this.timestamp = timestamp;
     }
 
-    public Integer getTempsInt() {
+    public int getTempsInt() {
         return tempsInt;
     }
 
@@ -63,7 +68,7 @@ public class Source {
         this.tempsInt = tempsInt;
     }
 
-    public Integer getTempsTapa() {
+    public int getTempsTapa() {
         return tempsTapa;
     }
 

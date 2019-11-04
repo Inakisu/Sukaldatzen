@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Aggregations {
 
-    @SerializedName("my_agg")
+    @SerializedName("myAgg")
     @Expose
     private MyAgg myAgg;
 

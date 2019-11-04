@@ -7,15 +7,19 @@ public class Hit {
     @SerializedName("_index")
     @Expose
     private String index;
+
     @SerializedName("_type")
     @Expose
     private String type;
+
     @SerializedName("_id")
     @Expose
     private String id;
+
     @SerializedName("_score")
     @Expose
-    private Double score;
+    private double score;
+
     @SerializedName("_source")
     @Expose
     private Source source;
@@ -44,7 +48,7 @@ public class Hit {
         this.id = id;
     }
 
-    public Double getScore() {
+    public double getScore() {
         return score;
     }
 

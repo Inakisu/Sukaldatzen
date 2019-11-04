@@ -9,12 +9,14 @@ public class Hits {
     @SerializedName("total")
     @Expose
     private Total total;
+
     @SerializedName("max_score")
     @Expose
-    private Double maxScore;
+    private double maxScore;
+
     @SerializedName("hits")
     @Expose
-    private List<Hit> hits = null;
+    private List<Hit> hits;
 
     public Total getTotal() {
         return total;
@@ -24,7 +26,7 @@ public class Hits {
         this.total = total;
     }
 
-    public Double getMaxScore() {
+    public double getMaxScore() {
         return maxScore;
     }
 
