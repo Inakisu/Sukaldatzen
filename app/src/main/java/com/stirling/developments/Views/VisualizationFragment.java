@@ -269,20 +269,19 @@ public class VisualizationFragment extends Fragment
                 mElasticSearchPassword));
         String searchString = "";
         try {
-            queryJson = "{\n" +
-                    "  \"query\":{\n" +
+            queryJson = "\n" +
+                    "  \"query\":{ \n" +
                     "    \"bool\":{\n" +
                     "      \"must\": [\n" +
                     "        {\"match\": {\n" +
-                    "          \"idMac\": \"" + macC + "\"\n" +
+                    "          \"idMac\": \"22:22:22:22\"\n" +
                     "          }\n" +
                     "        }\n" +
                     "      ]\n" +
                     "    }\n" +
-                    "}\n"+
                     "  },\n" +
                     "  \"aggs\": {\n" +
-                    "    \"my_agg\": {\n" +
+                    "    \"myAgg\": {\n" +
                     "      \"top_hits\": {\n" +
                     "        \"size\": 1,\n" +
                     "        \"sort\": [\n" +
@@ -293,13 +292,6 @@ public class VisualizationFragment extends Fragment
                     "          }]\n" +
                     "      }\n" +
                     "    }\n" +
-                    "  },\n" +
-                    "  \"_source\": {\n" +
-                    "    \"includes\":[\n" +
-                    "      \"tempsInt\",\n" +
-                    "      \"tempsTapa\",\n" +
-                    "      \"timestamp\"\n" +
-                    "    ]\n" +
                     "  }\n" +
                     "}";
             jsonObject = new JSONObject(queryJson);
@@ -309,11 +301,11 @@ public class VisualizationFragment extends Fragment
         //Creamos el body con el JSON
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-        Call<Aggregations> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
+        Call<MyAgg> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
 //antes hitsobjetcM
-        call.enqueue(new Callback<Aggregations>() {
+        call.enqueue(new Callback<MyAgg>() {
             @Override
-            public void onResponse(Call<Aggregations> call, Response<Aggregations> response) {
+            public void onResponse(Call<MyAgg> call, Response<MyAgg> response) {
 //                HitsNomMAgg hitsNomMAgg = new HitsNomMAgg();
 //                HitsSubhitMAgg hitsSubhitMAgg = new HitsSubhitMAgg();
 //                HitsListMAgg hitsListMAgg = new HitsListMAgg();
@@ -328,8 +320,8 @@ public class VisualizationFragment extends Fragment
 
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
-                        aggregations = response.body();
-                        myAgg = aggregations.getMyAgg();
+//                       aggregations = response.body();
+                        myAgg = response.body();
                         hits = myAgg.getHits();
 //                        hitsNomMAgg = response.body().getHits();
                         //hits = response.body().getMyAgg().getHits().getHits();
@@ -364,7 +356,7 @@ public class VisualizationFragment extends Fragment
             }
 
             @Override
-            public void onFailure(Call<Aggregations> call, Throwable t) {
+            public void onFailure(Call<MyAgg> call, Throwable t) {
 
             }
         });

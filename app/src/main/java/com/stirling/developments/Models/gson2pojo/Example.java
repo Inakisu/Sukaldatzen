@@ -7,21 +7,25 @@ public class Example {
 
     @SerializedName("took")
     @Expose
-    private Integer took;
+    private int took;
+
     @SerializedName("timed_out")
     @Expose
-    private Boolean timedOut;
+    private boolean timedOut;
+
     @SerializedName("_shards")
     @Expose
     private Shards shards;
+
     @SerializedName("hits")
     @Expose
     private Hits hits;
+
     @SerializedName("aggregations")
     @Expose
     private Aggregations aggregations;
 
-    public Integer getTook() {
+    public int getTook() {
         return took;
     }
 
@@ -29,7 +33,7 @@ public class Example {
         this.took = took;
     }
 
-    public Boolean getTimedOut() {
+    public boolean getTimedOut() {
         return timedOut;
     }
 
