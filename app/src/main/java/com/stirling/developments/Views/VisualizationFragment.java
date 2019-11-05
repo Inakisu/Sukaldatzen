@@ -25,6 +25,7 @@ import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
 import com.stirling.developments.Models.POJOs.Usuario;
 import com.stirling.developments.Models.gson2pojo.Aggregations;
+import com.stirling.developments.Models.gson2pojo.Example;
 import com.stirling.developments.Models.gson2pojo.Hit;
 import com.stirling.developments.Models.gson2pojo.Hits;
 import com.stirling.developments.Models.gson2pojo.MyAgg;
@@ -301,14 +302,15 @@ public class VisualizationFragment extends Fragment
         //Creamos el body con el JSON
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-        Call<MyAgg> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
+        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
 //antes hitsobjetcM
-        call.enqueue(new Callback<MyAgg>() {
+        call.enqueue(new Callback<Example>() {
             @Override
-            public void onResponse(Call<MyAgg> call, Response<MyAgg> response) {
+            public void onResponse(Call<Example> call, Response<Example> response) {
 //                HitsNomMAgg hitsNomMAgg = new HitsNomMAgg();
 //                HitsSubhitMAgg hitsSubhitMAgg = new HitsSubhitMAgg();
 //                HitsListMAgg hitsListMAgg = new HitsListMAgg();
+                Example example;
                 Aggregations aggregations;
                 MyAgg  myAgg;
                 Hits hits = new Hits();
@@ -320,9 +322,9 @@ public class VisualizationFragment extends Fragment
 
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
-                       myAgg = response.body();
-//                        aggregations = response.body();
-                        myAgg = response.body();
+                        example = response.body();
+                        aggregations = example.getAggregations();
+                        myAgg = aggregations.getMyAgg();
                         hits = myAgg.getHits();
 //                        hitsNomMAgg = response.body().getHits();
                         //hits = response.body().getMyAgg().getHits().getHits();
@@ -357,7 +359,7 @@ public class VisualizationFragment extends Fragment
             }
 
             @Override
-            public void onFailure(Call<MyAgg> call, Throwable t) {
+            public void onFailure(Call<Example> call, Throwable t) {
 
             }
         });

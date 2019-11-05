@@ -6,19 +6,31 @@ import com.google.gson.annotations.SerializedName;
 
 public class Hits {
 
-    @SerializedName("total")
+/*    @SerializedName("total")
     @Expose
     private Total total;
 
     @SerializedName("max_score")
     @Expose
-    private double maxScore;
+    private double maxScore;*/
 
     @SerializedName("hits")
     @Expose
     private List<Hit> hits;
 
-    public Total getTotal() {
+    public Hits() {
+    }
+
+    /**
+     *
+     * @param hits
+     */
+    public Hits(List<Hit> hits) {
+        super();
+        this.hits = hits;
+    }
+
+/*    public Total getTotal() {
         return total;
     }
 
@@ -32,7 +44,7 @@ public class Hits {
 
     public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
-    }
+    }*/
 
     public List<Hit> getHits() {
         return hits;

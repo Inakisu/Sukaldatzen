@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Hit {
 
-    @SerializedName("_index")
+/*    @SerializedName("_index")
     @Expose
     private String index;
 
@@ -20,17 +20,33 @@ public class Hit {
 
     @SerializedName("_score")
     @Expose
-    private double score;
+    private double score;*/
 
     @SerializedName("_source")
     @Expose
     private Source source;
 
-    @SerializedName("sort")
+    /*@SerializedName("sort")
     @Expose //esto sobraría, se ignoranlos campos que no están declarados en la clase
-    private List<Integer> sort;
+    private List<Integer> sort;*/
 
-    public String getIndex() {
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Hit() {
+    }
+
+    /**
+     *
+     * @param source
+     */
+    public Hit(Source source) {
+        super();
+        this.source = source;
+    }
+
+/*    public String getIndex() {
         return index;
     }
 
@@ -60,7 +76,7 @@ public class Hit {
 
     public void setScore(double score) {
         this.score = score;
-    }
+    }*/
 
     public Source getSource() {
         return source;
@@ -70,8 +86,8 @@ public class Hit {
         this.source = source;
     }
 
-    public List<Integer> getSort() {return sort;}
+/*    public List<Integer> getSort() {return sort;}
 
-    public void setSort(List<Integer> sort) { this.sort = sort; }
+    public void setSort(List<Integer> sort) { this.sort = sort; }*/
 
 }

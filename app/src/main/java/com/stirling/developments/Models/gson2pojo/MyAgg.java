@@ -8,12 +8,33 @@ public class MyAgg {
     @Expose
     private Hits hits;
 
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public MyAgg() {
+    }
+
+    /**
+     *
+     * @param hits
+     */
+    public MyAgg(Hits hits) {
+        super();
+        this.hits = hits;
+    }
+
     public Hits getHits() {
         return hits;
     }
 
     public void setHits(Hits hits) {
         this.hits = hits;
+    }
+
+    public MyAgg withHits(Hits hits) {
+        this.hits = hits;
+        return this;
     }
 
 }

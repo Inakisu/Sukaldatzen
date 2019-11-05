@@ -1,60 +1,27 @@
 package com.stirling.developments.Models.gson2pojo;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Example {
 
-    @SerializedName("took")
-    @Expose
-    private int took;
-
-    @SerializedName("timed_out")
-    @Expose
-    private boolean timedOut;
-
-    @SerializedName("_shards")
-    @Expose
-    private Shards shards;
-
-    @SerializedName("hits")
-    @Expose
-    private Hits hits;
-
     @SerializedName("aggregations")
     @Expose
     private Aggregations aggregations;
 
-    public int getTook() {
-        return took;
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Example() {
     }
 
-    public void setTook(Integer took) {
-        this.took = took;
-    }
-
-    public boolean getTimedOut() {
-        return timedOut;
-    }
-
-    public void setTimedOut(Boolean timedOut) {
-        this.timedOut = timedOut;
-    }
-
-    public Shards getShards() {
-        return shards;
-    }
-
-    public void setShards(Shards shards) {
-        this.shards = shards;
-    }
-
-    public Hits getHits() {
-        return hits;
-    }
-
-    public void setHits(Hits hits) {
-        this.hits = hits;
+    /**
+     *
+     * @param aggregations
+     */
+    public Example(Aggregations aggregations) {
+        super();
+        this.aggregations = aggregations;
     }
 
     public Aggregations getAggregations() {
@@ -63,6 +30,11 @@ public class Example {
 
     public void setAggregations(Aggregations aggregations) {
         this.aggregations = aggregations;
+    }
+
+    public Example withAggregations(Aggregations aggregations) {
+        this.aggregations = aggregations;
+        return this;
     }
 
 }

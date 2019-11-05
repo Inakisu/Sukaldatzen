@@ -8,12 +8,33 @@ public class Aggregations {
     @Expose
     private MyAgg myAgg;
 
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Aggregations() {
+    }
+
+    /**
+     *
+     * @param myAgg
+     */
+    public Aggregations(MyAgg myAgg) {
+        super();
+        this.myAgg = myAgg;
+    }
+
     public MyAgg getMyAgg() {
         return myAgg;
     }
 
     public void setMyAgg(MyAgg myAgg) {
         this.myAgg = myAgg;
+    }
+
+    public Aggregations withMyAgg(MyAgg myAgg) {
+        this.myAgg = myAgg;
+        return this;
     }
 
 }
