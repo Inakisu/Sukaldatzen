@@ -27,7 +27,7 @@ public class Hit {
     private Source source;
 
     @SerializedName("sort")
-    @Expose
+    @Expose //esto sobraría, se ignoranlos campos que no están declarados en la clase
     private List<Integer> sort;
 
     public String getIndex() {

@@ -48,7 +48,7 @@ public interface ElasticSearchAPI {
                                      @Body RequestBody params);
 
     //Llamada para obtener información acerca de una medición. Con aggregations
-    @POST("mediciones_sukaldatzen/_search")
+    @POST("mediciones_sukaldatzen/_search?filter_path=aggregations.myAgg.hits.hits._source*")
     Call<MyAgg> searchHitsAgg(@HeaderMap Map<String,String> headers,
                               @Body RequestBody params);
 
