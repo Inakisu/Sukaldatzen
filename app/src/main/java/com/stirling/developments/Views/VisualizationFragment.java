@@ -320,7 +320,8 @@ public class VisualizationFragment extends Fragment
 
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
-//                       aggregations = response.body();
+                       myAgg = response.body();
+//                        aggregations = response.body();
                         myAgg = response.body();
                         hits = myAgg.getHits();
 //                        hitsNomMAgg = response.body().getHits();
