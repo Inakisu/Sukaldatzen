@@ -1,5 +1,6 @@
 package com.stirling.developments.Views;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -121,22 +122,33 @@ public class VisualizationFragment extends Fragment
         elCorreo = mAuth.getCurrentUser().getEmail();
 
         obtenerCazuelasUsuario();
-        listarCazuelasUI(); //esto va a sobrar, ya verás
+        listarCazuelasUI(); //esto va a sobrar, ya verás, te lo digo yo
         enPrueba();
-        actualizarTemperatura();
+        //actualizarTemperatura();
 
-        Handler mHandler = new Handler();
+        final Handler handler = new Handler();
+        /* your code here */
+        new Runnable() {
+            @Override
+            public void run() {
+                handler.postDelayed(this, 2 * 1000); // every 2 seconds
+                //lo que queremos que haga cada dos segundos
+                actualizarTemperatura();
+            }
+        }.run();
+
+        /*Handler mHandler = new Handler();
 
         Runnable mHandlerTask = new Runnable() {
             @Override
             public void run() {
                 //aquí hacemos algo
-                //actualizarTemperatura();
+                actualizarTemperatura();
                 //Y aquí establecemos el postDelayed con el intervalo de tiempo que deseamos
                 mHandler.postDelayed(this, INTERVAL);
             }
         };
-        mHandlerTask.run();
+        mHandlerTask.run();*/
 /*
         //Creamos las referencias a cada una de las tablas de la base de datos
         usersReference = FirebaseDatabase.getInstance().getReference().child("Usuarios")
@@ -347,6 +359,13 @@ public class VisualizationFragment extends Fragment
                     Log.d(TAG, "onResponse: size: " + mMedicion.size());
                     //setup the list of posts
 
+                    //Actualizamos temperatura
+                    String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
+                    tvTemperature.setText(ta + "ºC");
+                    Log.i("Tª: ", "Temperatura actualizada: "+ ta + " ºC");
+                    Log.i("Tª", "Temperatura tapa: " + hits.getHits().get(0).getSource()
+                            .getTempsTapa().toString()+ " ºC");
+
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -363,7 +382,6 @@ public class VisualizationFragment extends Fragment
 
             }
         });
-
     }
 
     private void goToAppropriateCazuela()
