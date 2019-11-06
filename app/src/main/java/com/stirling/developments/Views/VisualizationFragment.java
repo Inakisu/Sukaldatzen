@@ -66,6 +66,7 @@ public class VisualizationFragment extends Fragment
     private int currentPage;
     private ArrayList<Cazuela> cazuelas;
     private Cazuela currentCazuela;
+    private String macCurrentCazuela;
     private String mIndice = "";
     private String mAccion = "";
     private String mElasticSearchPassword = Constants.elasticPassword;
@@ -96,6 +97,7 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.bSetAlarm) TextView bSetTemperatureAlarm;
     @BindView(R.id.bSetTime) TextView bSetTimeAlarm;
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
+    @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
 
     @Nullable
     @Override
@@ -137,18 +139,6 @@ public class VisualizationFragment extends Fragment
             }
         }.run();
 
-        /*Handler mHandler = new Handler();
-
-        Runnable mHandlerTask = new Runnable() {
-            @Override
-            public void run() {
-                //aquí hacemos algo
-                actualizarTemperatura();
-                //Y aquí establecemos el postDelayed con el intervalo de tiempo que deseamos
-                mHandler.postDelayed(this, INTERVAL);
-            }
-        };
-        mHandlerTask.run();*/
 /*
         //Creamos las referencias a cada una de las tablas de la base de datos
         usersReference = FirebaseDatabase.getInstance().getReference().child("Usuarios")
@@ -205,7 +195,7 @@ public class VisualizationFragment extends Fragment
                 if(swipeType==SwipeDetector.SwipeTypeEnum.LEFT_TO_RIGHT){
                     if(currentPage > 0){
                         currentPage--;
-                        currentCazuela = cazuelas.get(currentPage);
+                        currentCazuela = mCazuela.get(currentPage); //cazuelas
 //                        temperatureThreshold.setText("Temp. Alarm: " + (currentCazuela
 //                                .getTemperatureAlarm() == 0 ? "Disabled" :
 //                                (currentCazuela.getTemperatureAlarm() + "ºC")));
@@ -217,13 +207,13 @@ public class VisualizationFragment extends Fragment
                     }
                 }
                 if(swipeType==SwipeDetector.SwipeTypeEnum.RIGHT_TO_LEFT){
-                    if(currentPage < cazuelas.size() - 1){
+                    if(currentPage < mCazuela.size() - 1){
                         currentPage++;
 //                        temperatureThreshold.setText("Temp. Alarm: " + (currentCazuela
 //                                .getTemperatureAlarm() == 0 ? "Disabled" :
 //                                (currentCazuela.getTemperatureAlarm() + "ºC")));
 //                        seekBarTemp.setProgress(currentCazuela.getTemperatureAlarm());
-                        currentCazuela = cazuelas.get(currentPage);
+                        currentCazuela = mCazuela.get(currentPage); //cazuela
                         goToAppropriateCazuela();
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
                     }else{
@@ -275,7 +265,7 @@ public class VisualizationFragment extends Fragment
     private void actualizarTemperatura() {
         mMedicion = new ArrayList<Source>(); //Medicion
 //        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
-        String macC = "22:22:22:22";
+        String macC = macCurrentCazuela;
         //Adaptamos el codigo de obtener cazuelas para obtener temperaturas
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
@@ -287,7 +277,7 @@ public class VisualizationFragment extends Fragment
                     "    \"bool\":{\n" +
                     "      \"must\": [\n" +
                     "        {\"match\": {\n" +
-                    "          \"idMac\": \"22:22:22:22\"\n" +
+                    "          \"idMac\": \"" + macC + "\"\n" +
                     "          }\n" +
                     "        }\n" +
                     "      ]\n" +
@@ -366,6 +356,10 @@ public class VisualizationFragment extends Fragment
                     Log.i("Tª", "Temperatura tapa: " + hits.getHits().get(0).getSource()
                             .getTempsTapa().toString()+ " ºC");
 
+                    //Actualizamos la MAC de la cazuela mostrada
+                    String mac = hits.getHits().get(0).getSource().getIdMac().toString();
+                    tvMAC.setText(mac);
+
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -386,6 +380,10 @@ public class VisualizationFragment extends Fragment
 
     private void goToAppropriateCazuela()
     {
+        macCurrentCazuela = currentCazuela.getIdMac();
+        tvMAC.setText(macCurrentCazuela);
+
+
         //Cada vez que se cambia de pantalla dejamos de escuchar los datos de la cazuela y nos
         //ponemos a escuchar cambios en la nueva cazuela que corresponda
  //       cazuelasReference.removeEventListener(getValueEventListener());
@@ -530,6 +528,11 @@ public class VisualizationFragment extends Fragment
 
                     Log.d(TAG, "onResponse: size: " + mCazuela.size());
                     //setup the list of posts
+                    currentPage = 0;
+                    currentCazuela = mCazuela.get(currentPage);
+                    macCurrentCazuela = currentCazuela.getIdMac();
+                    Log.i("Obtener MAC cazuela", " ---> "+ macCurrentCazuela);
+                    tvMAC.setText(macCurrentCazuela);
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );

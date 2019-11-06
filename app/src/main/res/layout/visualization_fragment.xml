@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/round_corners"
             android:ellipsize="marquee"
-            android:text="TextView"
+            android:text="nombre"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
