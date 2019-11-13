@@ -69,8 +69,8 @@ public class MainUserActivity extends AppCompatActivity {
                         break;
 
                     case R.id.nav_settings:
-                        Toast.makeText(MainUserActivity.this, "Función no disponible" +
-                                " en aplicación demo.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainUserActivity.this, "Función ajustes en " +
+                                "desarrollo.", Toast.LENGTH_LONG).show();
                         break;
 
                     case R.id.nav_signOut:

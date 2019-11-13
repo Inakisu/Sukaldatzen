@@ -139,55 +139,6 @@ public class VisualizationFragment extends Fragment
             }
         }.run();
 
-/*
-        //Creamos las referencias a cada una de las tablas de la base de datos
-        usersReference = FirebaseDatabase.getInstance().getReference().child("Usuarios")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        cazuelasReference = FirebaseDatabase.getInstance().getReference().child("Cazuelas");
-*/
-        //I: Falta controlar en caso de que no haya cazuelas. Si no, casca al intentar cargar un valor null
-        //Obtenemos todas las cazuelas disponibles para este usuario para crear tantas pantallas como cazuelas tenga
-      /*  usersReference.child("cazuelasIDs").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-            {
-                final ArrayList<String> addresses = new ArrayList();
-                for(DataSnapshot snapshot : dataSnapshot.getChildren())
-                {
-                    //Añadimos las cazuelas a la lista de cazuelas
-                    addresses.add(snapshot.getValue(String.class));
-                }
-
-                cazuelasReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        cazuelas = new ArrayList();
-                        for(DataSnapshot snapshot : dataSnapshot.getChildren())
-                        {
-                            //Añadimos las cazuelas a la lista de cazuelas
-                            cazuelas.add(snapshot.getValue(Cazuela.class));
-                        }
-
-                        if(cazuelas.size() > 0)
-                        {
-                            cazuelasReference.child(addresses.get(0))
-                            .addValueEventListener(getValueEventListener());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });*/
-
         //Creamos el handler para detectar swipes
         new SwipeDetector(view).setOnSwipeListener(new SwipeDetector.onSwipeEvent() {
             @Override
@@ -196,10 +147,7 @@ public class VisualizationFragment extends Fragment
                     if(currentPage > 0){
                         currentPage--;
                         currentCazuela = mCazuela.get(currentPage); //cazuelas
-//                        temperatureThreshold.setText("Temp. Alarm: " + (currentCazuela
-//                                .getTemperatureAlarm() == 0 ? "Disabled" :
-//                                (currentCazuela.getTemperatureAlarm() + "ºC")));
-//                        seekBarTemp.setProgress(currentCazuela.getTemperatureAlarm());
+                        tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz anterior
                         goToAppropriateCazuela();
                         actualizarTemperatura(); //para que se actualice al instante de cambiar
                     }else{
@@ -209,11 +157,8 @@ public class VisualizationFragment extends Fragment
                 if(swipeType==SwipeDetector.SwipeTypeEnum.RIGHT_TO_LEFT){
                     if(currentPage < mCazuela.size() - 1){
                         currentPage++;
-//                        temperatureThreshold.setText("Temp. Alarm: " + (currentCazuela
-//                                .getTemperatureAlarm() == 0 ? "Disabled" :
-//                                (currentCazuela.getTemperatureAlarm() + "ºC")));
-//                        seekBarTemp.setProgress(currentCazuela.getTemperatureAlarm());
                         currentCazuela = mCazuela.get(currentPage); //cazuela
+                        tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz anterior
                         goToAppropriateCazuela();
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
                     }else{
@@ -266,12 +211,13 @@ public class VisualizationFragment extends Fragment
         mMedicion = new ArrayList<Source>(); //Medicion
 //        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
         String macC = macCurrentCazuela;
-        //Adaptamos el codigo de obtener cazuelas para obtener temperaturas
+        //Generamos un authentication header para identificarnos contra Elasticsearch
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
         String searchString = "";
         try {
+            //Este es el JSON en el qu eespecificamos los parámetros de la búsqueda
             queryJson = "{\n" +
                     "  \"query\":{ \n" +
                     "    \"bool\":{\n" +
@@ -304,34 +250,26 @@ public class VisualizationFragment extends Fragment
         //Creamos el body con el JSON
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body); //antes searchMedicion
-//antes hitsobjetcM
+        //Realizamos la llamada mediante la API
+        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body);
         call.enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Call<Example> call, Response<Example> response) {
-//                HitsNomMAgg hitsNomMAgg = new HitsNomMAgg();
-//                HitsSubhitMAgg hitsSubhitMAgg = new HitsSubhitMAgg();
-//                HitsListMAgg hitsListMAgg = new HitsListMAgg();
                 Example example;
                 Aggregations aggregations;
                 MyAgg  myAgg;
                 Hits hits = new Hits();
                 Hit hit = new Hit();
-                //hits_ = aggregations.getMyAgg().getHits();
                 String jsonResponse = "";
                 try{
                     Log.d(TAG, "onResponse: server response: " + response.toString());
-
+                    //Si la respuesta es satisfactoria
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
                         example = response.body();
                         aggregations = example.getAggregations();
                         myAgg = aggregations.getMyAgg();
                         hits = myAgg.getHits();
-//                        hitsNomMAgg = response.body().getHits();
-                        //hits = response.body().getMyAgg().getHits().getHits();
-//                        hitsSubhitMAgg = hitsNomMAgg.getHits();
-//                        hitsListMAgg = hitsSubhitMAgg.getHits();
                         Log.d(TAG, " -----------onResponse: la response: "+response.body()
                                 .toString());
                     }else{
@@ -382,13 +320,7 @@ public class VisualizationFragment extends Fragment
     {
         macCurrentCazuela = currentCazuela.getIdMac();
         tvMAC.setText(macCurrentCazuela);
-
-
-        //Cada vez que se cambia de pantalla dejamos de escuchar los datos de la cazuela y nos
-        //ponemos a escuchar cambios en la nueva cazuela que corresponda
- //       cazuelasReference.removeEventListener(getValueEventListener());
-//        cazuelasReference.child(currentCazuela.getMAC())
-//                .addValueEventListener(getValueEventListener());
+        nombreCazuela.setText(currentCazuela.getNombreCazuela());
     }
 
 
@@ -478,7 +410,7 @@ public class VisualizationFragment extends Fragment
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
-        //elCorreo = "a@a.com"; //DE PRUEBA, HAY QUE BORRARLO AL ACABAR LAS PRUEBAS
+        elCorreo = "a@a.com"; //DE PRUEBA, HAY QUE BORRARLO AL ACABAR LAS PRUEBAS
         String searchString = "";
         try {
             queryJson = "{\n" +
