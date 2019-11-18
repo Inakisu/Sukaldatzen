@@ -59,8 +59,6 @@ public class MainUserActivity extends AppCompatActivity {
                 switch (id)
                 {
                     case R.id.nav_newPot:
-//                        Toast.makeText(MainUserActivity.this, "Función no " +
-//                                "disponible en aplicación demo", Toast.LENGTH_LONG).show();
                         //Para emparejar nueva olla por bluetooth
                         //Nos movemos a activity de sincr. bluetooth
                         Intent btIntent = new Intent (MainUserActivity.this,
@@ -71,6 +69,9 @@ public class MainUserActivity extends AppCompatActivity {
                     case R.id.nav_settings:
                         Toast.makeText(MainUserActivity.this, "Función ajustes en " +
                                 "desarrollo.", Toast.LENGTH_LONG).show();
+                        Intent ajustesIntent = new Intent(MainUserActivity.this,
+                                AjustesActivity.class);
+                        startActivity(ajustesIntent);
                         break;
 
                     case R.id.nav_signOut:

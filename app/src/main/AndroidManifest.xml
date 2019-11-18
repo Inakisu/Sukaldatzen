@@ -12,10 +12,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity
-            android:name="info.androidhive.firebase.activity_ajustes"
-            android:label="@string/title_activity_ajustes"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Views.BluetoothActivity" />
         <activity
             android:name=".Views.LoginActivity"
