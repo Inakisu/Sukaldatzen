@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="General">
+    <PreferenceCategory android:title="General"><!--
         <EditTextPreference
             android:defaultValue="@string/default_gallery_storage"
             android:key="@string/key_gallery_name"
@@ -46,6 +46,6 @@
             android:key="@string/key_upload_quality"
             android:summary="@string/summary_upload_video_quality"
             android:title="@string/title_upload_quality" />
-
+-->
     </PreferenceCategory>
 </PreferenceScreen>

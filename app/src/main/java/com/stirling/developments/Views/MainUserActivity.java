@@ -16,6 +16,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.stirling.developments.R;
 
 import butterknife.BindView;
@@ -46,6 +49,8 @@ public class MainUserActivity extends AppCompatActivity {
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+
 
         //Set click listener for items in nav drawer
         navigationView.setNavigationItemSelectedListener

@@ -18,6 +18,10 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.Viewport;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 import com.libRG.CustomTextView;
 import com.stirling.developments.Models.POJOs.Cazuela;
 import com.stirling.developments.Models.HitsLists.HitsList;
@@ -41,7 +45,6 @@ import org.json.JSONObject;
 
 import okhttp3.RequestBody;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,7 +85,11 @@ public class VisualizationFragment extends Fragment
     private String queryJson = "";
     private JSONObject jsonObject;
 
+    private float tempOlla;
+    private int lastX;
+
     private final static int INTERVAL = 3500;
+    private LineGraphSeries<DataPoint> series;
 
     @BindView(R.id.cazuelaMAC) TextView tvMAC;
     @BindView(R.id.cazuelaStatus) TextView tvStatus;
@@ -98,6 +105,8 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.bSetTime) TextView bSetTimeAlarm;
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
     @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
+    @BindView(R.id.graph) GraphView graphView;
+
 
     @Nullable
     @Override
@@ -114,7 +123,7 @@ public class VisualizationFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
 
         ButterKnife.bind(this, view);
-
+        lastX = 0;
 
         //Inicializamos la API de elasticsearch
         inicializarAPI();
@@ -128,6 +137,13 @@ public class VisualizationFragment extends Fragment
         enPrueba();
         //actualizarTemperatura();
 
+        //Inicializamos el gráfico
+        //graphView.addSeries(series);
+
+        //Configuramos el viewport
+        Viewport viewport = graphView.getViewport();
+        viewport.setScrollable(true);
+
         final Handler handler = new Handler();
         /* your code here */
         new Runnable() {
@@ -136,6 +152,7 @@ public class VisualizationFragment extends Fragment
                 handler.postDelayed(this, 2 * 1000); // every 2 seconds
                 //lo que queremos que haga cada dos segundos
                 actualizarTemperatura();
+                //actualizarGrafico();
             }
         }.run();
 
@@ -217,7 +234,7 @@ public class VisualizationFragment extends Fragment
                 mElasticSearchPassword));
         String searchString = "";
         try {
-            //Este es el JSON en el qu eespecificamos los parámetros de la búsqueda
+            //Este es el JSON en el que especificamos los parámetros de la búsqueda
             queryJson = "{\n" +
                     "  \"query\":{ \n" +
                     "    \"bool\":{\n" +
@@ -232,7 +249,7 @@ public class VisualizationFragment extends Fragment
                     "  \"aggs\": {\n" +
                     "    \"myAgg\": {\n" +
                     "      \"top_hits\": {\n" +
-                    "        \"size\": 1,\n" +
+                    "        \"size\": 100,\n" +
                     "        \"sort\": [\n" +
                     "          {\n" +
                     "            \"timestamp\":{\n" +
@@ -278,7 +295,7 @@ public class VisualizationFragment extends Fragment
 
                     Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
 
-                    for(int i = 0; i < hits.getHits().size(); i++){//hitsListMAgg.getMedicionIndex().size(); i++){
+                    for(int i = 0; i < hits.getHits().size(); i++){
                         Log.d(TAG, "onResponse: data: " + hits.getHits()
                                 .get(i).getSource().toString());
                         mMedicion.add(hits.getHits().get(i).getSource());
@@ -287,7 +304,7 @@ public class VisualizationFragment extends Fragment
                     Log.d(TAG, "onResponse: size: " + mMedicion.size());
                     //setup the list of posts
 
-                    //Actualizamos temperatura
+                    //Actualizamos temperatura con la última obtenida
                     String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
                     tvTemperature.setText(ta + "ºC");
                     Log.i("Tª: ", "Temperatura actualizada: "+ ta + " ºC");
@@ -295,8 +312,8 @@ public class VisualizationFragment extends Fragment
                             .getTempsTapa().toString()+ " ºC");
 
                     //Actualizamos la MAC de la cazuela mostrada
-                    String mac = hits.getHits().get(0).getSource().getIdMac().toString();
-                    tvMAC.setText(mac);
+                    String mac = hits.getHits().get(0).getSource().getIdMac(); //.toString()
+                    tvMAC.setText(" " + mac + " ");
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
@@ -314,6 +331,10 @@ public class VisualizationFragment extends Fragment
 
             }
         });
+    }
+
+    private void actualizarGrafico(){
+        series.appendData(new DataPoint(lastX++, tempOlla), true, 10);
     }
 
     private void goToAppropriateCazuela()

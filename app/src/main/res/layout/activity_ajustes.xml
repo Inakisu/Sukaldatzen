@@ -20,7 +20,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <PreferenceCategory android:title="General">
+    <!--<PreferenceCategory android:title="General">
         <EditTextPreference
             android:defaultValue="@string/default_gallery_storage"
             android:key="@string/key_gallery_name"
@@ -66,6 +66,6 @@
             android:summary="@string/summary_upload_video_quality"
             android:title="@string/title_upload_quality" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
 </android.support.design.widget.CoordinatorLayout>

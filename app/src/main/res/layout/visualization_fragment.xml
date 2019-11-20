@@ -20,28 +20,32 @@
             android:layout_height="wrap_content"
             android:background="@drawable/round_corners"
             android:ellipsize="marquee"
-            android:text="nombre"
+            android:text=" nombre "
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
         <com.libRG.CustomTextView
-            android:gravity="center"
             android:id="@+id/temperatureIndicator"
             android:layout_width="175dp"
             android:layout_height="175dp"
             android:layout_margin="30dp"
+            android:gravity="center"
             android:padding="10dp"
             android:textColor="@color/md_white"
-            android:textStyle="bold"
             android:textSize="40dp"
-            app:lib_setRoundedBGColor="@color/material_grey300"
+            android:textStyle="bold"
             android:visibility="visible"
-            app:lib_setRadius="50dp"
-            app:lib_setRoundedView="true"
-            app:lib_setShape="oval"
             app:lib_enable_ripple_effect="true"
-            app:lib_setRippleColor="@color/colorPrimaryDark" />
+            app:lib_setRadius="50dp"
+            app:lib_setRippleColor="@color/colorPrimaryDark"
+            app:lib_setRoundedBGColor="@color/material_grey300"
+            app:lib_setRoundedView="true"
+            app:lib_setShape="oval" />
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="200dip"
+            android:id="@+id/graph" />
 
         <LinearLayout
             android:visibility="gone"
