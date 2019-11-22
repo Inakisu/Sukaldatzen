@@ -124,6 +124,7 @@ public class VisualizationFragment extends Fragment
 
         ButterKnife.bind(this, view);
         lastX = 0;
+        mMedicion = new ArrayList<Source>(); //Mediciones
 
         //Inicializamos la API de elasticsearch
         inicializarAPI();
@@ -138,11 +139,8 @@ public class VisualizationFragment extends Fragment
         //actualizarTemperatura();
 
         //Inicializamos el gráfico
-        //graphView.addSeries(series);
+        iniciarGrafico(graphView);
 
-        //Configuramos el viewport
-        Viewport viewport = graphView.getViewport();
-        viewport.setScrollable(true);
 
         final Handler handler = new Handler();
         /* your code here */
@@ -152,7 +150,7 @@ public class VisualizationFragment extends Fragment
                 handler.postDelayed(this, 2 * 1000); // every 2 seconds
                 //lo que queremos que haga cada dos segundos
                 actualizarTemperatura();
-                //actualizarGrafico();
+                actualizarGrafico();
             }
         }.run();
 
@@ -191,7 +189,7 @@ public class VisualizationFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-//                currentCazuela.setTemperatureAlarm(seekBarTemp.getProgress());
+//              currentCazuela.setTemperatureAlarm(seekBarTemp.getProgress());
                 temperatureThreshold.setText(Html.fromHtml("<b>Temperature limit: </b>" +
                         seekBarTemp.getProgress() + "ºC"));
             }
@@ -225,7 +223,6 @@ public class VisualizationFragment extends Fragment
     }
 
     private void actualizarTemperatura() {
-        mMedicion = new ArrayList<Source>(); //Medicion
 //        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
         String macC = macCurrentCazuela;
         //Generamos un authentication header para identificarnos contra Elasticsearch
@@ -308,7 +305,7 @@ public class VisualizationFragment extends Fragment
                     String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
                     tvTemperature.setText(ta + "ºC");
                     Log.i("Tª: ", "Temperatura actualizada: "+ ta + " ºC");
-                    Log.i("Tª", "Temperatura tapa: " + hits.getHits().get(0).getSource()
+                    Log.i("Tª: ", "Temperatura tapa: " + hits.getHits().get(0).getSource()
                             .getTempsTapa().toString()+ " ºC");
 
                     //Actualizamos la MAC de la cazuela mostrada
@@ -333,8 +330,30 @@ public class VisualizationFragment extends Fragment
         });
     }
 
+    private void iniciarGrafico(GraphView graph){
+        //Configuramos el viewport
+        Viewport viewport = graphView.getViewport();
+        viewport.setScrollable(true);
+        viewport.setXAxisBoundsManual(true);
+        viewport.setMinX(4);
+        viewport.setMaxX(80);
+        viewport.setScalable(true);
+        series.setTitle("Últimas temperaturas");
+        series.setAnimated(true);
+        graphView.addSeries(series);
+        lastX=0;
+    }
+
     private void actualizarGrafico(){
         series.appendData(new DataPoint(lastX++, tempOlla), true, 10);
+        /*for (int i = 0; i <= mMedicion.size() ; i++){
+            //añadir cada vez que se actualiza al gráfico to do el array no es óptimo
+            //o
+            //añadir sólo el último valor no nos permite ver el progreso
+
+            //De momento sólo el último valor para ver cómo va
+
+        }*/
     }
 
     private void goToAppropriateCazuela()
