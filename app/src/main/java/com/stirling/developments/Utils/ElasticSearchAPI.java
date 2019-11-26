@@ -18,13 +18,6 @@ import retrofit2.http.POST;
 
 public interface ElasticSearchAPI {
 
-   /* @GET("_search/") //Esto va después de la URL base
-    Call<HitsObject> search(
-            @HeaderMap Map<String, String> headers,
-            @Query("default_operator") String operator, //1era query (pone '?')
-            @Query("q") String query //2a query (pone '&')
-            );*/
-
     //Llamada para buscar usuario. Headermap para autenticacion y body para query json
     @POST("usuarios_sukaldatzen/_search")
     Call<HitsObject> searchUsuario(@HeaderMap Map<String, String> headers,
@@ -33,6 +26,12 @@ public interface ElasticSearchAPI {
     //Llamada para introducir un usuario nuevo en la base de datos
     @POST("/usuarios_sukaldatzen/_doc")
     Call<RequestBody> postUserReg();
+
+    //Prueba: LLamada para eliminar la entrada de un usuario
+    //usado a la hora de actualizar la ubicación de un usuario
+    @POST("/usuarios_sukaldatzen/_delete_by_query")
+    Call<RequestBody> deleteUserByQuery(@HeaderMap Map<String, String> headers,
+                                        @Body RequestBody params);
 
     //Llamada para obtener información sobre una cazuela
     @POST("/cazuelas_sukaldatzen/_search")
@@ -56,6 +55,4 @@ public interface ElasticSearchAPI {
     //Llamada para introducir una medición nueva en la base de datos
     @POST("/mediciones_sukaldatzen/_doc")
     Call<RequestBody> postMedicion();
-
-
 }
