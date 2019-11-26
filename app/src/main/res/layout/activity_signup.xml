@@ -24,14 +24,14 @@
             android:layout_height="@dimen/logo_w_h"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="30dp"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@mipmap/ic_launcher_iconolla_foreground" />
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/mailContainer"
-            android:layout_marginTop="50dp"
-            android:layout_below="@id/logo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/logo"
+            android:layout_marginTop="15dp"
             app:hintTextAppearance="@style/WhiteText">
 
             <EditText
@@ -59,7 +59,6 @@
                 android:layout_height="wrap_content"
                 android:focusableInTouchMode="true"
                 android:hint="@string/hint_password"
-                android:imeActionId="@+id/login"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
@@ -68,28 +67,72 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <Button
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/nombreContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/passwordContainer"
+            app:hintAnimationEnabled="false"
+            app:hintTextAppearance="@style/WhiteText">
+
+            <EditText
+                android:id="@+id/nombreReg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusableInTouchMode="true"
+                android:hint="Nombre"
+                android:imeOptions="actionUnspecified"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@android:color/white" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/fechaNacContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/nombreContainer"
+            app:hintAnimationEnabled="false"
+            app:hintTextAppearance="@style/WhiteText">
+
+            <EditText
+                android:id="@+id/fechaNacReg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusableInTouchMode="true"
+                android:hint="Fecha de nacimiento"
+                android:imeOptions="actionUnspecified"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@android:color/white" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
             android:id="@+id/sign_up_button"
             style="?android:textAppearanceSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dip"
+            android:layout_below="@id/fechaNacContainer"
+            android:layout_marginTop="25dp"
             android:background="@color/colorAccent"
-            android:text="@string/action_sign_in_short"
+            android:text="Registrarse"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
     </RelativeLayout>
 
     <Button
-        android:layout_weight="0.75"
         android:id="@+id/sign_in_button"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_marginTop="20dip"
+        android:layout_weight="0.75"
         android:background="#55000000"
-        android:text="@string/btn_link_to_login"
+        android:text="¿Ya está registrado? Inicie sesión"
         android:textAllCaps="false"
         android:textColor="@color/md_white"
         android:textSize="15dp" />

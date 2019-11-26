@@ -1,6 +1,5 @@
 package com.stirling.developments.Views;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -44,7 +43,7 @@ public class SignupActivity extends AppCompatActivity {
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
-        inputPassword = (EditText) findViewById(R.id.password);
+        inputPassword = (EditText) findViewById(R.id.nombreReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +123,7 @@ public class SignupActivity extends AppCompatActivity {
 
         });
     }
-    private void enviarVerif(){ //método para enviar email de verificación
+    /*private void enviarVerif(){ //método para enviar email de verificación
         user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -140,7 +139,7 @@ public class SignupActivity extends AppCompatActivity {
                 }
             }
         });
-    }
+    }*/
     @Override
     protected void onResume() {
         super.onResume();

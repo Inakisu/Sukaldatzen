@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         oldEmail = (EditText) findViewById(R.id.old_email);
         newEmail = (EditText) findViewById(R.id.new_email);
-        password = (EditText) findViewById(R.id.password);
+        password = (EditText) findViewById(R.id.nombreReg);
         newPassword = (EditText) findViewById(R.id.newPassword);
 
         oldEmail.setVisibility(View.GONE);
