@@ -139,7 +139,7 @@ public class VisualizationFragment extends Fragment
         //actualizarTemperatura();
 
         //Inicializamos el gráfico
-        iniciarGrafico(graphView);
+//        iniciarGrafico(graphView);
 
 
         final Handler handler = new Handler();
@@ -150,7 +150,7 @@ public class VisualizationFragment extends Fragment
                 handler.postDelayed(this, 2 * 1000); // every 2 seconds
                 //lo que queremos que haga cada dos segundos
                 actualizarTemperatura();
-                actualizarGrafico();
+//                actualizarGrafico();
             }
         }.run();
 

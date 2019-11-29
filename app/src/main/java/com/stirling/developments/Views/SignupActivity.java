@@ -17,17 +17,41 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.stirling.developments.Models.gson2pojo.Aggregations;
+import com.stirling.developments.Models.gson2pojo.Example;
+import com.stirling.developments.Models.gson2pojo.Hit;
+import com.stirling.developments.Models.gson2pojo.Hits;
+import com.stirling.developments.Models.gson2pojo.MyAgg;
 import com.stirling.developments.R;
+import com.stirling.developments.Utils.Constants;
+import com.stirling.developments.Utils.ElasticSearchAPI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import okhttp3.Credentials;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static android.content.ContentValues.TAG;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword;
+    private EditText inputEmail, inputPassword, inputNombre, inputFechaNac;
     private Button btnSignIn, btnSignUp;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
     private FirebaseUser user;
     private String TAG = "Tag verificación Email";
-
+    private String mElasticSearchPassword = Constants.elasticPassword;
+    private String queryJson = "";
+    private JSONObject jsonObject;
+    private ElasticSearchAPI searchAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +68,8 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.nombreReg);
+        inputNombre = (EditText) findViewById(R.id.nombreReg);
+        inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
@@ -59,27 +85,36 @@ public class SignupActivity extends AppCompatActivity {
 
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
+                String nombre = inputNombre.getText().toString().trim();
+                String fecha = inputFechaNac.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(getApplicationContext(), "Introduce una dirección de correo",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 if (TextUtils.isEmpty(password)) {
                     Toast.makeText(getApplicationContext(), "Introduce una contraseña"
                             , Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 if (password.length() < 6) {
                     Toast.makeText(getApplicationContext(), "Introduzca una contraseña de " +
                             "mínimo 6 caracteres", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                if (TextUtils.isEmpty(nombre)){
+                    Toast.makeText(getApplicationContext(), "Introduce un nombre"
+                            , Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(fecha)){
+                    Toast.makeText(getApplicationContext(), "Introduce una fecha de" +
+                            "nacimiento", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 progressBar.setVisibility(View.VISIBLE);
-                //create user
+                //Creamos el usuario en el gestor de cuentas de Firebase
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignupActivity.this, new
                                 OnCompleteListener<AuthResult>() {
@@ -118,6 +153,8 @@ public class SignupActivity extends AppCompatActivity {
                                 }
                             }
                         });
+                //Introducimos informacion en nuestra base de datos, no en firebase
+                nuevoUsuario(email, nombre, fecha);
 
             }
 
@@ -144,6 +181,102 @@ public class SignupActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         progressBar.setVisibility(View.GONE);
+    }
+    private void nuevoUsuario(String correo, String mail, String fechaNac){
+
+        //Generamos un authentication header para identificarnos contra Elasticsearch
+        HashMap<String, String> headerMap = new HashMap<String, String>();
+        headerMap.put("Authorization", Credentials.basic("android",
+                mElasticSearchPassword));
+        String searchString = "";
+        try {
+            //Este es el JSON en el que especificamos los parámetros de la búsqueda
+            queryJson = "{\n" +
+                    "  \"query\":{ \n" +
+                    "    \"bool\":{\n" +
+                    "      \"must\": [\n" +
+                    "        {\"match\": {\n" +
+                    "          \"idMac\": \"" +  "\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"aggs\": {\n" +
+                    "    \"myAgg\": {\n" +
+                    "      \"top_hits\": {\n" +
+                    "        \"size\": 100,\n" +
+                    "        \"sort\": [\n" +
+                    "          {\n" +
+                    "            \"timestamp\":{\n" +
+                    "              \"order\": \"desc\"\n" +
+                    "            }\n" +
+                    "          }]\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+            jsonObject = new JSONObject(queryJson);
+        }catch (JSONException jerr){
+            Log.d("Error: ", jerr.toString());
+        }
+        //Creamos el body con el JSON
+        RequestBody body = RequestBody.create(okhttp3.MediaType
+                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
+        //Realizamos la llamada mediante la API
+        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body);
+        call.enqueue(new Callback<Example>() {
+            @Override
+            public void onResponse(Call<Example> call, Response<Example> response) {
+                Example example;
+                Aggregations aggregations;
+                MyAgg myAgg;
+                Hits hits = new Hits();
+                Hit hit = new Hit();
+                String jsonResponse = "";
+                try{
+                    Log.d(TAG, "onResponse: server response: " + response.toString());
+                    //Si la respuesta es satisfactoria
+                    if(response.isSuccessful()){
+                        Log.d(TAG, "repsonseBody: "+ response.body().toString());
+                        example = response.body();
+                        aggregations = example.getAggregations();
+                        myAgg = aggregations.getMyAgg();
+                        hits = myAgg.getHits();
+                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
+                                .toString());
+                    }else{
+                        jsonResponse = response.errorBody().string(); //error response body
+                    }
+
+                    Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
+
+                    for(int i = 0; i < hits.getHits().size(); i++){
+                        Log.d(TAG, "onResponse: data: " + hits.getHits()
+                                .get(i).getSource().toString());
+                        //mMedicion.add(hits.getHits().get(i).getSource());
+                    }
+
+                    Log.d(TAG, "onResponse: size: ");
+
+
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
+                }
+                catch (IndexOutOfBoundsException e){
+                    Log.e(TAG, "onResponse: IndexOutOfBoundsException: " + e.getMessage() );
+                }
+                catch (IOException e){
+                    Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Example> call, Throwable t) {
+
+            }
+        });
+
     }
 
 }
