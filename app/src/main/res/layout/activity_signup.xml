@@ -94,17 +94,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/nombreContainer"
-            app:hintAnimationEnabled="false"
+            app:hintAnimationEnabled="true"
             app:hintTextAppearance="@style/WhiteText">
-
             <EditText
                 android:id="@+id/fechaNacReg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusableInTouchMode="true"
+                android:clickable="true"
+                android:focusableInTouchMode="false"
                 android:hint="Fecha de nacimiento"
                 android:imeOptions="actionUnspecified"
-                android:inputType="text"
+                android:inputType="date"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textColor="@android:color/white" />

@@ -1,5 +1,6 @@
 package com.stirling.developments.Views;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -17,6 +19,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.shagi.materialdatepicker.date.DatePickerFragmentDialog;
 import com.stirling.developments.Models.gson2pojo.Aggregations;
 import com.stirling.developments.Models.gson2pojo.Example;
 import com.stirling.developments.Models.gson2pojo.Hit;
@@ -30,7 +33,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import okhttp3.Credentials;
 import okhttp3.RequestBody;
@@ -52,6 +58,7 @@ public class SignupActivity extends AppCompatActivity {
     private String queryJson = "";
     private JSONObject jsonObject;
     private ElasticSearchAPI searchAPI;
+    final Calendar calendario = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,25 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        inputFechaNac.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                /*new DatePickerDialog(SignupActivity.this, date, calendario
+                        .get(Calendar.YEAR), calendario.get(Calendar.MONTH),
+                        calendario.get(Calendar.DAY_OF_MONTH)).show();*/
+                DatePickerFragmentDialog datePickerFragmentDialog = DatePickerFragmentDialog
+                        .newInstance(new DatePickerFragmentDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePickerFragmentDialog v, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                inputFechaNac.setText(dayOfMonth + "-" + monthOfYear + "-" + year);
+                            }
+                        },11,01,2000);
+
+                datePickerFragmentDialog.show(getSupportFragmentManager(), null);
             }
         });
 
@@ -160,6 +186,7 @@ public class SignupActivity extends AppCompatActivity {
 
         });
     }
+
     /*private void enviarVerif(){ //método para enviar email de verificación
         user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
             @Override
@@ -182,7 +209,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onResume();
         progressBar.setVisibility(View.GONE);
     }
-    private void nuevoUsuario(String correo, String mail, String fechaNac){
+    private void nuevoUsuario(String correo, String nombre, String fechaNac){
 
         //Generamos un authentication header para identificarnos contra Elasticsearch
         HashMap<String, String> headerMap = new HashMap<String, String>();
@@ -191,31 +218,12 @@ public class SignupActivity extends AppCompatActivity {
         String searchString = "";
         try {
             //Este es el JSON en el que especificamos los parámetros de la búsqueda
-            queryJson = "{\n" +
-                    "  \"query\":{ \n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"idMac\": \"" +  "\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  },\n" +
-                    "  \"aggs\": {\n" +
-                    "    \"myAgg\": {\n" +
-                    "      \"top_hits\": {\n" +
-                    "        \"size\": 100,\n" +
-                    "        \"sort\": [\n" +
-                    "          {\n" +
-                    "            \"timestamp\":{\n" +
-                    "              \"order\": \"desc\"\n" +
-                    "            }\n" +
-                    "          }]\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+            queryJson = "{\n"+
+                            "\"correousu\":" + correo + ",\n" +
+                            "\"edad\":"+ 22 + ",\n" +
+//                            "\"primUbic\":" + coords + ",\n" +
+//                            "\"discapaz\":" + disc + ",\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
             Log.d("Error: ", jerr.toString());
