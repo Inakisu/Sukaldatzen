@@ -1,5 +1,7 @@
 package com.stirling.developments.Views;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
@@ -49,6 +52,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,6 +67,10 @@ import static android.content.ContentValues.TAG;
 public class VisualizationFragment extends Fragment
 {
     private static final String BASE_URL = "http://10.128.0.104:9200/";
+
+    static SharedPreferences sharedPreferences;
+//    private static SharedPreferences.Editor editor = sharedPreferences.edit();
+
 
     private DatabaseReference usersReference, cazuelasReference;
     private ValueEventListener valueEventListener;
@@ -121,7 +129,8 @@ public class VisualizationFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+//        sharedPreferences = this.getActivity().getSharedPreferences("navprefs",
+//                Context.MODE_PRIVATE);
         ButterKnife.bind(this, view);
         lastX = 0;
         mMedicion = new ArrayList<Source>(); //Mediciones
@@ -505,7 +514,7 @@ public class VisualizationFragment extends Fragment
                     macCurrentCazuela = currentCazuela.getIdMac();
                     Log.i("Obtener MAC cazuela", " ---> "+ macCurrentCazuela);
                     tvMAC.setText(macCurrentCazuela);
-
+//                    addListaToShared("key",mCazuela); //metemos la lista de cazuelas en sharedPreferences
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -523,6 +532,17 @@ public class VisualizationFragment extends Fragment
             }
         });
     }
+
+  /*  public void addListaToShared(String key, List<Cazuela> list){
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+
+        set(key, json);
+    }*/
+  /*  public static void set(String key, String value) {
+        editor.putString(key, value);
+        editor.commit();
+    }*/
 
     public void enPrueba(){ //throws IOException
         //Prueba 3

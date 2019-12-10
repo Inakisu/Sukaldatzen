@@ -1,6 +1,8 @@
 package com.stirling.developments.Views;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -26,6 +29,7 @@ import butterknife.ButterKnife;
 
 public class MainUserActivity extends AppCompatActivity {
 
+    SharedPreferences sharedPreferences;
 
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
@@ -33,10 +37,15 @@ public class MainUserActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
 
+    //final Menu menu = navigationView.getMenu();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+//        sharedPreferences = getBaseContext().getSharedPreferences("navprefs",
+//                Context.MODE_PRIVATE);
 
         //Bind UI elements
         ButterKnife.bind(this);
@@ -105,7 +114,10 @@ public class MainUserActivity extends AppCompatActivity {
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override public void onDrawerSlide(View drawerView, float slideOffset) {}
             @Override public void onDrawerOpened(View drawerView) {}
-            @Override public void onDrawerStateChanged(int newState) {}
+            @Override public void onDrawerStateChanged(int newState) {
+                //método de actualizar lista
+                //actualizarDrawer();
+            }
 
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -132,5 +144,9 @@ public class MainUserActivity extends AppCompatActivity {
         if(addToBackStack)
             transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    public void actualizarDrawer(){
+        //sharedPreferences.
     }
 }

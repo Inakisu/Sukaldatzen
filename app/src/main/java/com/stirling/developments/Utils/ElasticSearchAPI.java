@@ -3,6 +3,7 @@ package com.stirling.developments.Utils;
 import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
 import com.stirling.developments.Models.HitsObjects.HitsObjectM;
+import com.stirling.developments.Models.POJOs.RespuestaU;
 import com.stirling.developments.Models.gson2pojo.Aggregations;
 //import com.stirling.developments.Models.gson2pojo.Example;
 import com.stirling.developments.Models.gson2pojo.Example;
@@ -11,6 +12,7 @@ import com.stirling.developments.Models.gson2pojo.MyAgg;
 import java.util.Map;
 
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.HeaderMap;
@@ -25,7 +27,8 @@ public interface ElasticSearchAPI {
 
     //Llamada para introducir un usuario nuevo en la base de datos
     @POST("/usuarios_sukaldatzen/_doc")
-    Call<RequestBody> postUserReg();
+    Call<RespuestaU> postUserReg(@HeaderMap Map<String, String> headers,
+                                 @Body RequestBody params);
 
     //Prueba: LLamada para eliminar la entrada de un usuario
     //usado a la hora de actualizar la ubicación de un usuario

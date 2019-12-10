@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.shagi.materialdatepicker.date.DatePickerFragmentDialog;
+import com.stirling.developments.Models.POJOs.RespuestaU;
 import com.stirling.developments.Models.gson2pojo.Aggregations;
 import com.stirling.developments.Models.gson2pojo.Example;
 import com.stirling.developments.Models.gson2pojo.Hit;
@@ -40,9 +41,12 @@ import java.util.Locale;
 
 import okhttp3.Credentials;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.ContentValues.TAG;
 
@@ -58,6 +62,7 @@ public class SignupActivity extends AppCompatActivity {
     private String queryJson = "";
     private JSONObject jsonObject;
     private ElasticSearchAPI searchAPI;
+    private Retrofit retrofit;
     final Calendar calendario = Calendar.getInstance();
 
     @Override
@@ -71,10 +76,13 @@ public class SignupActivity extends AppCompatActivity {
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
+        //Inicializamos la API de elasticsearch
+        inicializarAPI();
+
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
-        inputPassword = (EditText) findViewById(R.id.nombreReg);
+        inputPassword = (EditText) findViewById(R.id.password);
         inputNombre = (EditText) findViewById(R.id.nombreReg);
         inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -95,12 +103,13 @@ public class SignupActivity extends AppCompatActivity {
                 DatePickerFragmentDialog datePickerFragmentDialog = DatePickerFragmentDialog
                         .newInstance(new DatePickerFragmentDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePickerFragmentDialog v, int year,
-                                                  int monthOfYear, int dayOfMonth) {
-                                inputFechaNac.setText(dayOfMonth + "-" + monthOfYear + "-" + year);
+                            public void onDateSet(DatePickerFragmentDialog v, int dayOfMonth,
+                                                  int monthOfYear, int year) {
+                                inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear+1)
+                                        + "-" + year);
                             }
-                        },11,01,2000);
-
+                        },2000,01,11);
+                datePickerFragmentDialog.setMaxDate(System.currentTimeMillis());
                 datePickerFragmentDialog.show(getSupportFragmentManager(), null);
             }
         });
@@ -110,7 +119,7 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
+                String password = inputPassword.getText().toString();
                 String nombre = inputNombre.getText().toString().trim();
                 String fecha = inputFechaNac.getText().toString().trim();
 
@@ -209,6 +218,13 @@ public class SignupActivity extends AppCompatActivity {
         super.onResume();
         progressBar.setVisibility(View.GONE);
     }
+    private void inicializarAPI(){
+        retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.URL_ELASTICSEARCH)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        searchAPI = retrofit.create(ElasticSearchAPI.class);
+    }
     private void nuevoUsuario(String correo, String nombre, String fechaNac){
 
         //Generamos un authentication header para identificarnos contra Elasticsearch
@@ -219,10 +235,11 @@ public class SignupActivity extends AppCompatActivity {
         try {
             //Este es el JSON en el que especificamos los parámetros de la búsqueda
             queryJson = "{\n"+
-                            "\"correousu\":" + correo + ",\n" +
-                            "\"edad\":"+ 22 + ",\n" +
-//                            "\"primUbic\":" + coords + ",\n" +
-//                            "\"discapaz\":" + disc + ",\n" +
+                            "\"correousu\":\"" + correo + "\",\n" +
+                            "\"nombre\":\"" + nombre + "\",\n" +
+                            "\"fechaNac\":\""+ fechaNac + "\",\n" +
+                            "\"primUbic\":\"" + "37.761533, -3.798992" + "\",\n" +
+                            "\"discapaz\":\"" + 0 + "\"\n" +
                         "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
@@ -232,32 +249,36 @@ public class SignupActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
         //Realizamos la llamada mediante la API
-        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body);
-        call.enqueue(new Callback<Example>() {
+        Call<RespuestaU> call = searchAPI.postUserReg(headerMap, body);
+        call.enqueue(new Callback<RespuestaU>() {
             @Override
-            public void onResponse(Call<Example> call, Response<Example> response) {
-                Example example;
-                Aggregations aggregations;
-                MyAgg myAgg;
-                Hits hits = new Hits();
-                Hit hit = new Hit();
-                String jsonResponse = "";
+            public void onResponse(Call<RespuestaU> call, Response<RespuestaU> response) {
+//                Example example;
+//                Aggregations aggregations;
+//                MyAgg myAgg;
+//                Hits hits = new Hits();
+//                Hit hit = new Hit();
+                RespuestaU respuestaU = new RespuestaU();
+                String jsonResponse;
                 try{
                     Log.d(TAG, "onResponse: server response: " + response.toString());
                     //Si la respuesta es satisfactoria
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
-                        example = response.body();
-                        aggregations = example.getAggregations();
-                        myAgg = aggregations.getMyAgg();
-                        hits = myAgg.getHits();
-                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
+                        System.out.println(respuestaU.toString());
+                        System.out.println(respuestaU.getIndex());
+//                        example = response.body();
+//                        aggregations = example.getAggregations();
+//                        myAgg = aggregations.getMyAgg();
+//                        hits = myAgg.getHits();
+                        Log.d(TAG, " -----------onResponse: la response: " + response.body()
                                 .toString());
                     }else{
                         jsonResponse = response.errorBody().string(); //error response body
+                        System.out.println("Response body: " + jsonResponse);
                     }
 
-                    Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
+                    /*Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
 
                     for(int i = 0; i < hits.getHits().size(); i++){
                         Log.d(TAG, "onResponse: data: " + hits.getHits()
@@ -265,7 +286,7 @@ public class SignupActivity extends AppCompatActivity {
                         //mMedicion.add(hits.getHits().get(i).getSource());
                     }
 
-                    Log.d(TAG, "onResponse: size: ");
+                    Log.d(TAG, "onResponse: size: ");*/
 
 
                 }catch (NullPointerException e){
@@ -280,8 +301,9 @@ public class SignupActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Example> call, Throwable t) {
-
+            public void onFailure(Call<RespuestaU> call, Throwable t) {
+                Log.e(TAG, "onFailure del POST usuario registrado ");
+                System.out.println("El throwable: " + t);
             }
         });
 

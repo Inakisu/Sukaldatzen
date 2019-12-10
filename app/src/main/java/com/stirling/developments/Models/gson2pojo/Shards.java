@@ -1,5 +1,6 @@
-/*
+
 package com.stirling.developments.Models.gson2pojo;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -7,48 +8,78 @@ public class Shards {
 
     @SerializedName("total")
     @Expose
-    private int total;
+    private Integer total;
     @SerializedName("successful")
     @Expose
-    private int successful;
-    @SerializedName("skipped")
-    @Expose
-    private int skipped;
+    private Integer successful;
     @SerializedName("failed")
     @Expose
-    private int failed;
+    private Integer failed;
 
-    public int getTotal() {
-        return total;
+    /**
+     * No args constructor for use in serialization
+     */
+    public Shards() {
     }
 
-    public void setTotal(int total) {
+    /**
+     * @param total
+     * @param failed
+     * @param successful
+     */
+    public Shards(Integer total, Integer successful, Integer failed) {
+        super();
         this.total = total;
-    }
-
-    public int getSuccessful() {
-        return successful;
-    }
-
-    public void setSuccessful(int successful) {
         this.successful = successful;
-    }
-
-    public int getSkipped() {
-        return skipped;
-    }
-
-    public void setSkipped(int skipped) {
-        this.skipped = skipped;
-    }
-
-    public int getFailed() {
-        return failed;
-    }
-
-    public void setFailed(int failed) {
         this.failed = failed;
     }
 
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Shards withTotal(Integer total) {
+        this.total = total;
+        return this;
+    }
+
+    public Integer getSuccessful() {
+        return successful;
+    }
+
+    public void setSuccessful(Integer successful) {
+        this.successful = successful;
+    }
+
+    public Shards withSuccessful(Integer successful) {
+        this.successful = successful;
+        return this;
+    }
+
+    public Integer getFailed() {
+        return failed;
+    }
+
+    public void setFailed(Integer failed) {
+        this.failed = failed;
+    }
+
+    public Shards withFailed(Integer failed) {
+        this.failed = failed;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "_shards{" +
+                "total='" + total + '\'' +
+                ", successful='" + successful + '\'' +
+                ", failed='" + failed + '\'' +
+                '}';
+    }
+
 }
-*/
