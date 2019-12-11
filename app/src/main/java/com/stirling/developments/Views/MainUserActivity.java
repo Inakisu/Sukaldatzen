@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -15,14 +16,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.stirling.developments.Models.POJOs.Cazuela;
+import com.stirling.developments.Models.gson2pojo.Source;
 import com.stirling.developments.R;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,17 +44,19 @@ public class MainUserActivity extends AppCompatActivity {
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.toolbar) Toolbar toolbar;
 
-    private FirebaseAuth auth;
+    private Menu menu;
+    private SubMenu modulos;
 
-    //final Menu menu = navigationView.getMenu();
+    private FirebaseAuth auth;
+    ArrayList<Cazuela> listaModulos = new ArrayList<Cazuela>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-//        sharedPreferences = getBaseContext().getSharedPreferences("navprefs",
-//                Context.MODE_PRIVATE);
+        sharedPreferences = getBaseContext().getSharedPreferences("navprefs",
+                Context.MODE_PRIVATE);
 
         //Bind UI elements
         ButterKnife.bind(this);
@@ -58,8 +69,6 @@ public class MainUserActivity extends AppCompatActivity {
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-
 
         //Set click listener for items in nav drawer
         navigationView.setNavigationItemSelectedListener
@@ -116,7 +125,7 @@ public class MainUserActivity extends AppCompatActivity {
             @Override public void onDrawerOpened(View drawerView) {}
             @Override public void onDrawerStateChanged(int newState) {
                 //método de actualizar lista
-                //actualizarDrawer();
+                actualizarDrawer();
             }
 
             @Override
@@ -128,8 +137,12 @@ public class MainUserActivity extends AppCompatActivity {
 
         openNewFragment(new VisualizationFragment(), "VisualizationFragment",
                 null, true);
+        menu = navigationView.getMenu();
+        modulos = menu.addSubMenu("Módulos");
+
     }
 
+//    final Menu menu = navigationView.getMenu();
 
     /**************************************************************************
      *  /name: openNewFragment
@@ -145,8 +158,19 @@ public class MainUserActivity extends AppCompatActivity {
             transaction.addToBackStack(null);
         transaction.commit();
     }
+    public ArrayList<Cazuela> getArrayList(String key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = prefs.getString(key, null);
+        Type type = new TypeToken<ArrayList<Cazuela>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
 
     public void actualizarDrawer(){
-        //sharedPreferences.
+        listaModulos = getArrayList("navprefs");
+        modulos.clear();
+        for (int i = 1; i < listaModulos.size(); i++){
+            modulos.add(0,i,0,listaModulos.get(i).getNombreCazuela());
+        }
     }
 }

@@ -9,7 +9,6 @@
             android:title="Nueva cazuela"
             android:icon="@drawable/ic_add_black_24dp"/>
 
-
         <group android:id="@+id/settings"
             android:checkableBehavior="single">
             <item

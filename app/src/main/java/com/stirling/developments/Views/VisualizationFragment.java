@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -144,7 +145,7 @@ public class VisualizationFragment extends Fragment
 
         obtenerCazuelasUsuario();
         listarCazuelasUI(); //esto va a sobrar, ya verás, te lo digo yo
-        enPrueba();
+        //enPrueba();
         //actualizarTemperatura();
 
         //Inicializamos el gráfico
@@ -231,6 +232,14 @@ public class VisualizationFragment extends Fragment
         });
     }
 
+    public void saveArrayList(ArrayList<Cazuela> list, String key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = prefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(key, json);
+        editor.apply();
+    }
     private void actualizarTemperatura() {
 //        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
         String macC = macCurrentCazuela;
@@ -506,6 +515,8 @@ public class VisualizationFragment extends Fragment
                                 .getCazuela().toString());
                         mCazuela.add(hitsList.getCazuelaIndex().get(i).getCazuela());
                     }
+                    saveArrayList(mCazuela, "navprefs");
+
 
                     Log.d(TAG, "onResponse: size: " + mCazuela.size());
                     //setup the list of posts
