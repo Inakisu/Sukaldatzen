@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -88,6 +90,8 @@ public class BluetoothActivity extends AppCompatActivity {
     private ArrayList<String> arListEncont;
     private ArrayList<String> arListEmparej;
     private ArrayList<BluetoothLE> arBLEEncont;
+
+    private String wifiSSIDConectado;
 
     private String wifiSSIDIntrod;
     private String wifiPassIntrod;
@@ -232,6 +236,9 @@ public class BluetoothActivity extends AppCompatActivity {
         botonBuscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Obtenemos la SSID del WiFi al que se está conectado
+                wifiSSIDConectado = getWifiConectado();
+                System.out.println("WiFi Conectada a: " + wifiSSIDConectado);
                 //Limpiamos la lista de dispositivos encontrados
                 arListEncont.clear();
                 //Comienza la búsqueda, mostrar diálogo de progreso
@@ -322,6 +329,13 @@ public class BluetoothActivity extends AppCompatActivity {
                 popUpSolicitar();
             }
         });
+    }
+
+    private String getWifiConectado() {
+        WifiManager wifiManager = (WifiManager) getSystemService (Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo ();
+        String ssid  = info.getSSID();
+        return ssid;
     }
 
     //Transformar disp. Bluetooth a información en String
