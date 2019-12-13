@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -77,12 +79,16 @@ public class BluetoothActivity extends AppCompatActivity {
     private ListView dispVinculados;
     private ProgressBar progressBar2;
     private ProgressBar progressBar3;
+    private ProgressBar progressBar32;
     private Button botonBuscar;
     private Button botonAceptar;
+    private Button botonAceptar2;
     private PopupWindow popupWindow;
+    private PopupWindow popupWindow2;
     private RelativeLayout relativeLayout;
     private EditText editText;
     private EditText editTextPass;
+    private EditText editTextPass2;
 
     private OutputStream outputStream;
     private InputStream inputStream;
@@ -95,6 +101,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     private String wifiSSIDIntrod;
     private String wifiPassIntrod;
+    private String wifiPassIntrod2;
 
     private ArrayAdapter<String> arrayAdapterDispEncontrados;
     private ArrayAdapter<String> arrayAdapterDispEmparejados;
@@ -325,17 +332,41 @@ public class BluetoothActivity extends AppCompatActivity {
                 //Comprobamos conexión con el dispositivo
                 checkIfBleIsConnected(ble);
 
-                //Solicitamos SSID WiFi y password al usuario mediante un pop-up
-                popUpSolicitar();
+                //Si está conectado a WiFi sólo pedimos password, si no, pedimos todo
+                if(conectadoWiFi()){
+                    popUpSolicitarPass();
+                }else{
+                    //Solicitamos SSID WiFi y password al usuario mediante un pop-up
+                    popUpSolicitar();
+                }
+
+
             }
         });
     }
 
     private String getWifiConectado() {
-        WifiManager wifiManager = (WifiManager) getSystemService (Context.WIFI_SERVICE);
-        WifiInfo info = wifiManager.getConnectionInfo ();
-        String ssid  = info.getSSID();
-        return ssid;
+        if(conectadoWiFi()){
+            WifiManager wifiManager = (WifiManager) getSystemService (Context.WIFI_SERVICE);
+            WifiInfo info = wifiManager.getConnectionInfo ();
+            String ssid  = info.getSSID();
+            if (ssid.startsWith("\"") && ssid.endsWith("\"")){
+                ssid = ssid.substring(1, ssid.length()-1);
+            }
+            return ssid;
+        }else{
+            return null;
+        }
+    }
+
+    private boolean conectadoWiFi(){
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (mWifi.isConnected()) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
     //Transformar disp. Bluetooth a información en String
@@ -386,6 +417,47 @@ public class BluetoothActivity extends AppCompatActivity {
         Menu m = navView.getMenu();
         SubMenu menuGroup = m.addSubMenu("Lista de cazuelas");
         menuGroup.add(dirmac);
+    }
+
+    //Se genera y muestra un pop-up en el que introducir la contraseña de la red WiFi
+    private void popUpSolicitarPass(){
+        LayoutInflater layoutInflater = (LayoutInflater) BluetoothActivity.this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = layoutInflater.inflate(R.layout.popupcontr, null);
+
+        botonAceptar2 = (Button) customView.findViewById(R.id.aceptarBtn2);
+        editTextPass2 = (EditText) customView.findViewById(R.id.editTextPass2);
+        progressBar32 = (ProgressBar) customView.findViewById(R.id.progressBar32);
+        progressBar32.setVisibility(View.GONE);
+
+        //Instanciar la ventana pop-up
+        popupWindow2 = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow2.setAnimationStyle(R.style.DialogAnimation);
+
+        //Obtenemos la dirección MAC del WiFi del módulo
+        obtenerMacModulo();
+        //Mostrar la ventana pop-up
+        popupWindow2.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
+        //Cerrar la ventana pop-up al pulsar en el botón
+        botonAceptar2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                progressBar32.setVisibility(View.VISIBLE);
+                botonAceptar2.setVisibility(View.GONE);
+                wifiPassIntrod2 = editTextPass2.getText().toString();
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                popupWindow2.dismiss();
+                progressBar32.setVisibility(View.GONE);
+                botonAceptar2.setVisibility(View.VISIBLE);
+
+                mandarWiFiaModulo(getWifiConectado(), wifiPassIntrod2);
+            }
+        });
     }
 
     //Se genera y muestra un pop-up en el que introducir información acerca de la red WiFi
