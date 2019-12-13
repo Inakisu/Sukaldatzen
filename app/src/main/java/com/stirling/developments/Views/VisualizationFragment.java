@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,6 +102,11 @@ public class VisualizationFragment extends Fragment
     private final static int INTERVAL = 3500;
     private LineGraphSeries<DataPoint> series;
 
+    private PopupWindow popupWindow;
+    private Button botonAceptar;
+    private Button botonCancelar;
+
+
     @BindView(R.id.cazuelaMAC) TextView tvMAC;
     @BindView(R.id.cazuelaStatus) TextView tvStatus;
     @BindView(R.id.pageIndicador) TextView tvPageIndicator;
@@ -115,7 +122,6 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
     @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
     @BindView(R.id.graph) GraphView graphView;
-
 
     @Nullable
     @Override
@@ -736,5 +742,40 @@ public class VisualizationFragment extends Fragment
             //Añadimos una pantalla
         }
     }
+
+    /*private void popupsalir(){
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+        View customView = layoutInflater.inflate(R.layout.popupsalir, null);
+
+        botonAceptar = (Button) customView.findViewById(R.id.aceptarBtn);
+        botonCancelar = (Button) customView.findViewById(R.id.cancelarBtn);
+
+        //Instanciamos la ventana popup salir
+        popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setAnimationStyle(R.style.DialogAnimation);
+
+        botonAceptar.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View w){
+
+            }
+        });
+        botonCancelar.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View w){
+                popupWindow.dismiss();
+            }
+        });
+    }
+
+    public void onBackPressed() {
+        popupsalir();
+        if(popupWindow.isShowing())
+            popupWindow.dismiss();
+        else
+            getActivity().finish();
+    }*/
 
 }

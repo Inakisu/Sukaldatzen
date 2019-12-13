@@ -14,10 +14,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +48,7 @@ public class MainUserActivity extends AppCompatActivity {
 
     private Menu menu;
     private SubMenu modulos;
+    private String correoUsu = "Correo del usuario";
 
     private FirebaseAuth auth;
     ArrayList<Cazuela> listaModulos = new ArrayList<Cazuela>();
@@ -63,6 +66,9 @@ public class MainUserActivity extends AppCompatActivity {
 
         //Initialize toolbar
         setSupportActionBar(toolbar);
+
+        //Obtenemos correo del usuario para mostrar en el NavDrawer
+        correoUsu = FirebaseAuth.getInstance().getCurrentUser().getEmail(); //Null Object reference, por Login Google?
 
         //Initialize Navigation Drawer
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -117,7 +123,11 @@ public class MainUserActivity extends AppCompatActivity {
 
                 return true;
             }
+
         });
+        View headerView = navigationView.getHeaderView(0);
+        TextView navUsername = (TextView) headerView.findViewById(R.id.textView);
+        navUsername.setText(correoUsu);
 
 
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -173,4 +183,5 @@ public class MainUserActivity extends AppCompatActivity {
             modulos.add(0,i,0,listaModulos.get(i).getNombreCazuela());
         }
     }
+
 }
