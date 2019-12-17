@@ -2,6 +2,7 @@ package com.stirling.developments.Utils;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.util.Log;
 
 public class BleCallback {
 
@@ -13,10 +14,14 @@ public class BleCallback {
             characteristic){}
 
     public void onBleWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
-                           int status){}
+                           int status){
+        Log.i("BLE", "onBleWrite sucedió");
+    }
 
     public void onBleRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
-                          int status){}
+                          int status){
+        Log.i("BLE", "onBleRead sucedió");
+    }
 
 
 }

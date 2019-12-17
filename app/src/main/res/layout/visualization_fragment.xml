@@ -14,22 +14,11 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <TextView
-            android:id="@+id/textNombreCazuela"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/round_corners"
-            android:ellipsize="marquee"
-            android:text=" nombre "
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
-
         <com.libRG.CustomTextView
             android:id="@+id/temperatureIndicator"
             android:layout_width="175dp"
             android:layout_height="175dp"
-            android:layout_margin="30dp"
+            android:layout_margin="15dp"
             android:gravity="center"
             android:padding="10dp"
             android:textColor="@color/md_white"
@@ -42,10 +31,28 @@
             app:lib_setRoundedBGColor="@color/material_grey300"
             app:lib_setRoundedView="true"
             app:lib_setShape="oval" />
+
+        <TextView
+            android:id="@+id/textNombreCazuela"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_corners"
+            android:ellipsize="marquee"
+            android:text=" nombre "
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/botonGrafico"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:text="Gráfico" />
+
         <com.jjoe64.graphview.GraphView
-            android:layout_width="match_parent"
-            android:layout_height="200dip"
-            android:id="@+id/graph" />
+            android:id="@+id/graph"
+            android:layout_width="308dp"
+            android:layout_height="200dip" />
 
         <LinearLayout
             android:visibility="gone"

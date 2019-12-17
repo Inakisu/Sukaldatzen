@@ -122,6 +122,7 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
     @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
     @BindView(R.id.graph) GraphView graphView;
+    @BindView(R.id.botonGrafico) Button botonGraf;
 
     @Nullable
     @Override
@@ -221,6 +222,16 @@ public class VisualizationFragment extends Fragment
                         seekBarTime.getProgress() + "min."));
             }
         });
+        botonGraf.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(graphView.getVisibility() == View.VISIBLE){
+                    graphView.setVisibility(View.GONE);
+                }else{
+                    graphView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         //I: Cambio de color de círculo de temperatura
         tvTemperature.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,6 +248,8 @@ public class VisualizationFragment extends Fragment
             }
         });
     }
+
+
 
     public void saveArrayList(ArrayList<Cazuela> list, String key){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -257,30 +270,30 @@ public class VisualizationFragment extends Fragment
         try {
             //Este es el JSON en el que especificamos los parámetros de la búsqueda
             queryJson = "{\n" +
-                    "  \"query\":{ \n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"idMac\": \"" + macC + "\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  },\n" +
-                    "  \"aggs\": {\n" +
-                    "    \"myAgg\": {\n" +
-                    "      \"top_hits\": {\n" +
-                    "        \"size\": 100,\n" +
-                    "        \"sort\": [\n" +
-                    "          {\n" +
-                    "            \"timestamp\":{\n" +
-                    "              \"order\": \"desc\"\n" +
-                    "            }\n" +
-                    "          }]\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                        "  \"query\":{ \n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\": [\n" +
+                        "        {\"match\": {\n" +
+                        "          \"idMac\": \"" + macC + "\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  },\n" +
+                        "  \"aggs\": {\n" +
+                        "    \"myAgg\": {\n" +
+                        "      \"top_hits\": {\n" +
+                        "        \"size\": 100,\n" +
+                        "        \"sort\": [\n" +
+                        "          {\n" +
+                        "            \"timestamp\":{\n" +
+                        "              \"order\": \"desc\"\n" +
+                        "            }\n" +
+                        "          }]\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
             Log.d("Error: ", jerr.toString());
@@ -478,17 +491,17 @@ public class VisualizationFragment extends Fragment
         String searchString = "";
         try {
             queryJson = "{\n" +
-                    "  \"query\":{\n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"correousu\": \"" + elCorreo + "\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                        "  \"query\":{\n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\": [\n" +
+                        "        {\"match\": {\n" +
+                        "          \"correousu\": \"" + elCorreo + "\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
             Log.d("Error: ", jerr.toString());
@@ -590,17 +603,17 @@ public class VisualizationFragment extends Fragment
         try {
             elCorreo = "a@a.com";
             queryJson = "{\n" +
-                    "  \"query\":{\n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"correousu\": \""+ elCorreo +"\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                        "  \"query\":{\n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\": [\n" +
+                        "        {\"match\": {\n" +
+                        "          \"correousu\": \""+ elCorreo +"\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException err){
             Log.d("Error", err.toString());

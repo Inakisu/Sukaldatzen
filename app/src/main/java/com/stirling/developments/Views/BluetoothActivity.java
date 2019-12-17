@@ -45,21 +45,39 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.stirling.developments.Models.HitsLists.HitsListC;
+import com.stirling.developments.Models.HitsObjects.HitsObjectC;
+import com.stirling.developments.Models.POJOs.Cazuela;
 import com.stirling.developments.R;
 import com.stirling.developments.Models.BluetoothLE;
 import com.stirling.developments.Utils.BluetoothLEHelper;
 import com.stirling.developments.Utils.BleCallback;
 import com.stirling.developments.Utils.Constants;
+import com.stirling.developments.Utils.ElasticSearchAPI;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.Credentials;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
+import static android.content.ContentValues.TAG;
 
 public class BluetoothActivity extends AppCompatActivity {
 
@@ -109,6 +127,15 @@ public class BluetoothActivity extends AppCompatActivity {
     BluetoothDevice selDevice;
     private BleCallback bleCallback;
 
+    private String queryJson = "";
+    private JSONObject jsonObject;
+    private String mElasticSearchPassword = Constants.elasticPassword;
+    private Retrofit retrofit;
+    private ElasticSearchAPI searchAPI;
+
+    FirebaseAuth auth;
+    private String email;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +144,8 @@ public class BluetoothActivity extends AppCompatActivity {
         relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
 
         ble = new BluetoothLEHelper(this);
+        auth = FirebaseAuth.getInstance();
+        email = auth.getCurrentUser().getEmail();
 
         //Verificamos que el Bluetooth esté encendido, y si no lo está pedimos encenderlo
         if (adapter == null || !adapter.isEnabled()) {
@@ -332,15 +361,13 @@ public class BluetoothActivity extends AppCompatActivity {
                 //Comprobamos conexión con el dispositivo
                 checkIfBleIsConnected(ble);
 
-                //Si está conectado a WiFi sólo pedimos password, si no, pedimos todo
+                //Si está conectado a WiFi sólo pedimos password, si no, pedimos tod o
                 if(conectadoWiFi()){
                     popUpSolicitarPass();
                 }else{
                     //Solicitamos SSID WiFi y password al usuario mediante un pop-up
                     popUpSolicitar();
                 }
-
-
             }
         });
     }
@@ -513,7 +540,7 @@ public class BluetoothActivity extends AppCompatActivity {
            // bleCallback.onBleRead();
         }else{
             Log.e("obtenerMacModulo","ble no está conectado!!");
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("ble no conectado!");
         }
     }
 
@@ -530,7 +557,82 @@ public class BluetoothActivity extends AppCompatActivity {
 
             ble.write(Constants.SERVICE_UUID, Constants.PASSWORD_CHARACTERISTIC_UUID,pass);
             Log.i("Enviar info Wifi:", "Enviada contraseña");
+            busquedaEntrada(obtenidaMACWiFi,email);
         }
+    }
+
+    //Buscamos en cazuelas_sukaldatzen alguna entrada con MAC y correo para eliminarla.
+    //Este método se ejecuta al sincronizar por Bluetooth una olla, para evitar duplicidades
+    public void busquedaEntrada(String mac, String correo){
+
+        HashMap<String, String> headerMap = new HashMap<String, String>();
+        headerMap.put("Authorization", Credentials.basic("android",
+                mElasticSearchPassword));
+        String searchString = "";
+        try {
+            queryJson = "{\n" +
+                    "  \"query\":{\n" +
+                    "    \"bool\":{\n" +
+                    "      \"must\": [\n" +
+                    "        {\"match\": {\n" +
+                    "          \"correousu\": \"" + correo + "\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+            jsonObject = new JSONObject(queryJson);
+        }catch (JSONException jerr){
+            Log.d("Error: ", jerr.toString());
+        }
+        //Creamos el body con el JSON
+        RequestBody body = RequestBody.create(okhttp3.MediaType
+                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
+        Call<HitsObjectC> call = searchAPI.searchCazuela(headerMap, body);
+
+        call.enqueue(new Callback<HitsObjectC>() {
+            @Override
+            public void onResponse(Call<HitsObjectC> call, Response<HitsObjectC> response) {
+                HitsListC hitsList = new HitsListC();
+                String jsonResponse = "";
+                try{
+                    Log.d(TAG, "onResponse: server response: " + response.toString());
+
+                    if(response.isSuccessful()){
+                        hitsList = response.body().getHits();
+                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
+                                .toString());
+                    }else{
+                        jsonResponse = response.errorBody().string(); //error response body
+                    }
+
+                    Log.d(TAG, "onResponse: hits: " + hitsList);
+
+                    for(int i = 0; i < hitsList.getCazuelaIndex().size(); i++){
+                        Log.d(TAG, "onResponse: data: " + hitsList.getCazuelaIndex().get(i)
+                                .getCazuela().toString());
+                    }
+
+//                    Log.d(TAG, "onResponse: size: " + mCazuela.size());
+//                    setup the list of posts
+//                    addListaToShared("key",mCazuela); //metemos la lista de cazuelas en sharedPreferences
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
+                }
+                catch (IndexOutOfBoundsException e){
+                    Log.e(TAG, "onResponse: IndexOutOfBoundsException: " + e.getMessage() );
+                }
+                catch (IOException e){
+                    Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HitsObjectC> call, Throwable t) {
+
+            }
+        });
     }
 
     /*private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
