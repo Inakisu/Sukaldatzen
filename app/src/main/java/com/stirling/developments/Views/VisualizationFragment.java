@@ -100,7 +100,8 @@ public class VisualizationFragment extends Fragment
     private int lastX;
 
     private final static int INTERVAL = 3500;
-    private LineGraphSeries<DataPoint> series;
+    private LineGraphSeries<DataPoint> serie1;
+    private LineGraphSeries<DataPoint> serie2;
 
     private PopupWindow popupWindow;
     private Button botonAceptar;
@@ -141,6 +142,8 @@ public class VisualizationFragment extends Fragment
 //                Context.MODE_PRIVATE);
         ButterKnife.bind(this, view);
         lastX = 0;
+//        serie1 = new LineGraphSeries<>(); //añadirle las temperaturas anteriores a la actual
+        serie2 = new LineGraphSeries<>();
         mMedicion = new ArrayList<Source>(); //Mediciones
 
         //Inicializamos la API de elasticsearch
@@ -153,11 +156,10 @@ public class VisualizationFragment extends Fragment
         obtenerCazuelasUsuario();
         listarCazuelasUI(); //esto va a sobrar, ya verás, te lo digo yo
         //enPrueba();
-        //actualizarTemperatura();
+        actualizarTemperatura();
 
         //Inicializamos el gráfico
-//        iniciarGrafico(graphView);
-
+        iniciarGrafico(graphView);
 
         final Handler handler = new Handler();
         /* your code here */
@@ -180,6 +182,8 @@ public class VisualizationFragment extends Fragment
                         currentPage--;
                         currentCazuela = mCazuela.get(currentPage); //cazuelas
                         tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz anterior
+                        tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
+                                mCazuela.size());
                         goToAppropriateCazuela();
                         actualizarTemperatura(); //para que se actualice al instante de cambiar
                     }else{
@@ -191,6 +195,8 @@ public class VisualizationFragment extends Fragment
                         currentPage++;
                         currentCazuela = mCazuela.get(currentPage); //cazuela
                         tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz anterior
+                        tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
+                                mCazuela.size());
                         goToAppropriateCazuela();
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
                     }else{
@@ -222,6 +228,7 @@ public class VisualizationFragment extends Fragment
                         seekBarTime.getProgress() + "min."));
             }
         });
+        //Mostrar/ocultar el gráfico
         botonGraf.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -236,15 +243,7 @@ public class VisualizationFragment extends Fragment
         tvTemperature.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if(currentCazuela.getTemperatureAlarmFired() == true)
-                {
-//                    currentCazuela.setTemperatureAlarmFired(false);
-//                    tvTemperature.setBackgroundColor(currentCazuela.getTemperatura() < 100 ?
-//                            getContext().getColor(R.color.colorPrimary)
-//                            : currentCazuela.getTemperatura() > 150 ? getContext()
-//                            .getColor(R.color.material_red500) : getContext()
-//                            .getColor(R.color.colorAccent));
-                }
+
             }
         });
     }
@@ -259,8 +258,9 @@ public class VisualizationFragment extends Fragment
         editor.putString(key, json);
         editor.apply();
     }
+
+
     private void actualizarTemperatura() {
-//        String macC = mCazuela.get(currentPage).getIdMac(); //poner un if 0 no hacer nada
         String macC = macCurrentCazuela;
         //Generamos un authentication header para identificarnos contra Elasticsearch
         HashMap<String, String> headerMap = new HashMap<String, String>();
@@ -283,7 +283,7 @@ public class VisualizationFragment extends Fragment
                         "  \"aggs\": {\n" +
                         "    \"myAgg\": {\n" +
                         "      \"top_hits\": {\n" +
-                        "        \"size\": 100,\n" +
+                        "        \"size\": 10,\n" +
                         "        \"sort\": [\n" +
                         "          {\n" +
                         "            \"timestamp\":{\n" +
@@ -349,6 +349,12 @@ public class VisualizationFragment extends Fragment
                     String mac = hits.getHits().get(0).getSource().getIdMac(); //.toString()
                     tvMAC.setText(" " + mac + " ");
 
+                    //Introducimos esta última temperatura en la segunda serie
+                    String fjroi = hits.getHits().get(0).getSource().getTimestamp();
+                    int taInt = hits.getHits().get(0).getSource().getTempsInt();
+                    lastX++;//sustituir por hora?
+                    serie2.appendData(new DataPoint(lastX ,taInt),true,100);
+
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -371,24 +377,23 @@ public class VisualizationFragment extends Fragment
         //Configuramos el viewport
         Viewport viewport = graphView.getViewport();
         viewport.setScrollable(true);
-        viewport.setXAxisBoundsManual(true);
+        viewport.setXAxisBoundsManual(true);//ver qué hacen estas historias
         viewport.setMinX(4);
-        viewport.setMaxX(80);
+        viewport.setMaxX(80);//ver qué hace esta historia
         viewport.setScalable(true);
-        series.setTitle("Últimas temperaturas");
-        series.setAnimated(true);
-        graphView.addSeries(series);
+
+        serie2.setTitle("Últimas temperaturas");
+        serie2.setAnimated(true);
+        graphView.addSeries(serie2);
+
         lastX=0;
     }
 
     private void actualizarGrafico(){
-        series.appendData(new DataPoint(lastX++, tempOlla), true, 10);
-        /*for (int i = 0; i <= mMedicion.size() ; i++){
-            //añadir cada vez que se actualiza al gráfico to do el array no es óptimo
-            //o
-            //añadir sólo el último valor no nos permite ver el progreso
-
-            //De momento sólo el último valor para ver cómo va
+       /* serie1.appendData(new DataPoint(lastX++, tempOlla), true, 10);
+        for (int i = 0; i <= mMedicion.size() ; i++){
+            //Añadir el array con las últimas X mediciones
+            //Luego, añadir otro array en el que ir añadiendo las mediciones en directo
 
         }*/
     }
@@ -487,7 +492,7 @@ public class VisualizationFragment extends Fragment
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
-        elCorreo = "a@a.com"; //DE PRUEBA, HAY QUE BORRARLO AL ACABAR LAS PRUEBAS
+        //elCorreo = "a@a.com"; //DE PRUEBA, HAY QUE BORRARLO AL ACABAR LAS PRUEBAS
         String searchString = "";
         try {
             queryJson = "{\n" +
@@ -601,7 +606,7 @@ public class VisualizationFragment extends Fragment
 
         //Escribimos sentencia JSON entexto y luego la pasamos a objetoJSON
         try {
-            elCorreo = "a@a.com";
+            //elCorreo = "a@a.com";
             queryJson = "{\n" +
                         "  \"query\":{\n" +
                         "    \"bool\":{\n" +

@@ -47,8 +47,8 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.stirling.developments.Models.HitsLists.HitsListC;
-import com.stirling.developments.Models.HitsObjects.HitsObjectC;
-import com.stirling.developments.Models.POJOs.Cazuela;
+import com.stirling.developments.Models.POJOs.RespuestaB;
+import com.stirling.developments.Models.POJOs.RespuestaU;
 import com.stirling.developments.R;
 import com.stirling.developments.Models.BluetoothLE;
 import com.stirling.developments.Utils.BluetoothLEHelper;
@@ -76,6 +76,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.ContentValues.TAG;
 
@@ -101,6 +102,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private Button botonBuscar;
     private Button botonAceptar;
     private Button botonAceptar2;
+    private Button botonPrueba;
     private PopupWindow popupWindow;
     private PopupWindow popupWindow2;
     private RelativeLayout relativeLayout;
@@ -154,11 +156,15 @@ public class BluetoothActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        //Inicializamos la API
+        inicializarAPI();
+
         arListEncont = new ArrayList<String>();
 
         //Inicializamos elementos de la interfaz
         progressBar2 = (ProgressBar) findViewById(R.id.progressBar2);
         botonBuscar = (Button) findViewById(R.id.buscarButton);
+        botonPrueba = (Button) findViewById(R.id.botnPrueba);
         botonBuscar.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.GONE);
 
@@ -370,6 +376,21 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
             }
         });
+
+        botonPrueba.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                borrarLaCazuela("11:11:11", "a@a.com");
+            }
+        });
+    }
+
+    private void inicializarAPI(){
+        retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.URL_ELASTICSEARCH)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        searchAPI = retrofit.create(ElasticSearchAPI.class);
     }
 
     private String getWifiConectado() {
@@ -557,13 +578,14 @@ public class BluetoothActivity extends AppCompatActivity {
 
             ble.write(Constants.SERVICE_UUID, Constants.PASSWORD_CHARACTERISTIC_UUID,pass);
             Log.i("Enviar info Wifi:", "Enviada contraseña");
-            busquedaEntrada(obtenidaMACWiFi,email);
+//            busquedaEntrada(obtenidaMACWiFi,email);
+            borrarLaCazuela(obtenidaMACWiFi, email);
         }
     }
 
     //Buscamos en cazuelas_sukaldatzen alguna entrada con MAC y correo para eliminarla.
     //Este método se ejecuta al sincronizar por Bluetooth una olla, para evitar duplicidades
-    public void busquedaEntrada(String mac, String correo){
+    /*public void busquedaEntrada(String mac, String correo){
 
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
@@ -571,17 +593,23 @@ public class BluetoothActivity extends AppCompatActivity {
         String searchString = "";
         try {
             queryJson = "{\n" +
-                    "  \"query\":{\n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"correousu\": \"" + correo + "\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                        "  \"query\":{\n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\":[\n" +
+                        "        {\n" +
+                        "          \"match\":{\n" +
+                        "            \"idMac\":\""+ mac +"\"\n" +
+                        "          }\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"match\":{\n" +
+                        "            \"correousu\":\""+ correo +"\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
             Log.d("Error: ", jerr.toString());
@@ -613,10 +641,14 @@ public class BluetoothActivity extends AppCompatActivity {
                         Log.d(TAG, "onResponse: data: " + hitsList.getCazuelaIndex().get(i)
                                 .getCazuela().toString());
                     }
+                    //Si existe hay que llamar a un método que borre y luego otro que introduzca
+                    if (hitsList.getCazuelaIndex().size() == 0){
+                        //habría que borrar la entrada que se ha encontrado, no necesitamos esta
+                        //llamada y otra para borra la entrada
+                        //prueba de momento
+                        borrarLaCazuela(mac, correo);
+                    }
 
-//                    Log.d(TAG, "onResponse: size: " + mCazuela.size());
-//                    setup the list of posts
-//                    addListaToShared("key",mCazuela); //metemos la lista de cazuelas en sharedPreferences
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -630,6 +662,133 @@ public class BluetoothActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<HitsObjectC> call, Throwable t) {
+
+            }
+        });
+    }*/
+    //por comprobar func. de la API
+    public void borrarLaCazuela(String mac, String correo){
+        HashMap<String, String> headerMap = new HashMap<String, String>();
+        headerMap.put("Authorization", Credentials.basic("android",
+                mElasticSearchPassword));
+        try{
+            queryJson = "{\n" +
+                        "  \"query\":{\n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\":[\n" +
+                        "        {\n" +
+                        "          \"match\":{\n" +
+                        "            \"idMac\":\""+ mac +"\"\n" +
+                        "          }\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"match\":{\n" +
+                        "            \"correousu\":\""+ correo +"\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
+            jsonObject = new JSONObject(queryJson);
+        }catch (JSONException jerr){
+            Log.d("Error: ", jerr.toString());
+        }
+        //Creamos el body con el JSON
+        RequestBody body = RequestBody.create(okhttp3.MediaType
+                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
+        Call<RespuestaB> call = searchAPI.deleteCazuela(headerMap, body);
+
+        call.enqueue(new Callback<RespuestaB>() {
+            @Override
+            public void onResponse(Call<RespuestaB> call, Response<RespuestaB> response) {
+                HitsListC hitsList = new HitsListC();
+                String jsonResponse = "";
+                try{
+                    Log.d(TAG, "onResponse borrar cazuela: server response: "
+                            + response.toString());
+
+                    if(response.isSuccessful()){
+                        //hitsList = response.body().getHits();
+                        Log.d(TAG, " onResponse borrar cazuela: response body: "+response.body()
+                                .toString());
+                    }else{
+                        jsonResponse = response.errorBody().string(); //error response body
+                    }
+
+                    Log.d(TAG, "onResponse borrar cazuela: data: " );
+
+                    addCazuelaUsuario(mac, correo);
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onResponse borrarCaz: " +
+                            "NullPointerException: " + e.getMessage() );
+                }
+                catch (IndexOutOfBoundsException e){
+                    Log.e(TAG, "onResponse borrarCaz:" +
+                            " IndexOutOfBoundsException: " + e.getMessage() );
+                }
+                catch (IOException e){
+                    Log.e(TAG, "onResponse borrarCaz: IOException: " + e.getMessage() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RespuestaB> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void addCazuelaUsuario(String mac, String correo){
+        HashMap<String, String> headerMap = new HashMap<String, String>();
+        headerMap.put("Authorization", Credentials.basic("android",
+                mElasticSearchPassword));
+        try {
+            queryJson = "{\n" +
+                    "  \"idMac\":\""+ mac +"\",\n" +
+                    "  \"nombreCazuela\":\""+ mac +"\",\n" +
+                    "  \"correousu\":\""+ correo +"\",\n" +
+                    "  \"dueno\":true\n" +
+                    "}";
+            jsonObject = new JSONObject(queryJson);
+        }catch (JSONException jerr){
+            Log.d("Error: ", jerr.toString());
+        }
+        //Creamos el body con el JSON
+        RequestBody body = RequestBody.create(okhttp3.MediaType
+                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
+        //Realizamos la llamada mediante la API
+        Call<RespuestaU> call = searchAPI.postCazuela(headerMap, body);
+        call.enqueue(new Callback<RespuestaU>() {
+            @Override
+            public void onResponse(Call<RespuestaU> call, Response<RespuestaU> response) {
+                String jsonResponse = "";
+                try{
+                    Log.d(TAG, "onResponse addcazuela: server response: " + response.toString());
+                    //Si la respuesta es satisfactoria
+                    if(response.isSuccessful()){
+                        Log.d(TAG, "repsonseBody addcazuela: "+ response.body().toString());
+                        Log.d(TAG, " --onResponse addcazuela: la response: "+response.body()
+                                .toString());
+                    }else{
+                        jsonResponse = response.errorBody().string(); //error response body
+                    }
+                    Log.d(TAG, "onResponse add cazuela: ok ");
+
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onResponse addcazuela: NullPointerException: " + e.getMessage() );
+                }
+                catch (IndexOutOfBoundsException e){
+                    Log.e(TAG, "onResponse addcazuela: IndexOutOfBoundsException: " + e.getMessage() );
+                }
+                catch (IOException e){
+                    Log.e(TAG, "onResponse addcazuela: IOException: " + e.getMessage() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RespuestaU> call, Throwable t) {
 
             }
         });

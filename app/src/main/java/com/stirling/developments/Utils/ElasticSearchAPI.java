@@ -3,6 +3,7 @@ package com.stirling.developments.Utils;
 import com.stirling.developments.Models.HitsObjects.HitsObject;
 import com.stirling.developments.Models.HitsObjects.HitsObjectC;
 import com.stirling.developments.Models.HitsObjects.HitsObjectM;
+import com.stirling.developments.Models.POJOs.RespuestaB;
 import com.stirling.developments.Models.POJOs.RespuestaU;
 import com.stirling.developments.Models.gson2pojo.Aggregations;
 //import com.stirling.developments.Models.gson2pojo.Example;
@@ -43,7 +44,13 @@ public interface ElasticSearchAPI {
 
     //Llamada para introducir una cazuela nueva en la base de datos
     @POST("/cazuelas_sukaldatzen/_doc")
-    Call<RequestBody> postCazuela();
+    Call<RespuestaU> postCazuela(@HeaderMap Map<String, String> headers,
+                                  @Body RequestBody params);
+
+    //Lamada para borrar una entrada del índice de una cazuela
+    @POST("/cazuelas_sukaldatzen/_delete_by_query")
+    Call<RespuestaB> deleteCazuela(@HeaderMap Map<String, String> headers,
+                                   @Body RequestBody params);
 
     //Llamada para obtener información acerca de una medición. En hits
     @POST("/mediciones_sukaldatzen/_search")
@@ -58,4 +65,6 @@ public interface ElasticSearchAPI {
     //Llamada para introducir una medición nueva en la base de datos
     @POST("/mediciones_sukaldatzen/_doc")
     Call<RequestBody> postMedicion();
+
+    //
 }
