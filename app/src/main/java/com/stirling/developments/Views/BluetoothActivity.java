@@ -102,7 +102,6 @@ public class BluetoothActivity extends AppCompatActivity {
     private Button botonBuscar;
     private Button botonAceptar;
     private Button botonAceptar2;
-    private Button botonPrueba;
     private PopupWindow popupWindow;
     private PopupWindow popupWindow2;
     private RelativeLayout relativeLayout;
@@ -164,7 +163,6 @@ public class BluetoothActivity extends AppCompatActivity {
         //Inicializamos elementos de la interfaz
         progressBar2 = (ProgressBar) findViewById(R.id.progressBar2);
         botonBuscar = (Button) findViewById(R.id.buscarButton);
-        botonPrueba = (Button) findViewById(R.id.botnPrueba);
         botonBuscar.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.GONE);
 
@@ -377,12 +375,6 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         });
 
-        botonPrueba.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                borrarLaCazuela("11:11:11", "a@a.com");
-            }
-        });
     }
 
     private void inicializarAPI(){
