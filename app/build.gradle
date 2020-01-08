@@ -71,6 +71,7 @@ dependencies {
     implementation('com.shagi:material-datepicker:1.3') {
         exclude group: 'com.android.support'
     }
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

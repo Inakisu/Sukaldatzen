@@ -12,17 +12,16 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Views.BluetoothActivity" />
         <activity
-
-            android:name=".Views.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name="com.stirling.developments.Views.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:ignore="InnerclassSeparator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Views.BluetoothActivity" />
         <activity
             android:name=".Views.SettingsActivity"
             android:label="@string/title_activity_profile" />

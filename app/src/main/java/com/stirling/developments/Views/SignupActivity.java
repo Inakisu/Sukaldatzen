@@ -1,14 +1,24 @@
 package com.stirling.developments.Views;
 
-import android.app.DatePickerDialog;
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -21,11 +31,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.shagi.materialdatepicker.date.DatePickerFragmentDialog;
 import com.stirling.developments.Models.POJOs.RespuestaU;
-import com.stirling.developments.Models.gson2pojo.Aggregations;
-import com.stirling.developments.Models.gson2pojo.Example;
-import com.stirling.developments.Models.gson2pojo.Hit;
-import com.stirling.developments.Models.gson2pojo.Hits;
-import com.stirling.developments.Models.gson2pojo.MyAgg;
 import com.stirling.developments.R;
 import com.stirling.developments.Utils.Constants;
 import com.stirling.developments.Utils.ElasticSearchAPI;
@@ -34,21 +39,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 
 import okhttp3.Credentials;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static android.content.ContentValues.TAG;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -64,6 +64,21 @@ public class SignupActivity extends AppCompatActivity {
     private ElasticSearchAPI searchAPI;
     private Retrofit retrofit;
     final Calendar calendario = Calendar.getInstance();
+
+    private final Context mContext = this;
+    private Location location;
+    private double latitude;
+    private double longitude;
+    private Boolean act;
+    private Boolean gpsStatus;
+    private Boolean networkStatus;
+    private String coordsGPS = "";
+    private LocationManager locationManager;
+    private android.location.LocationListener myLocationListener;
+
+    private static final long tiempoMinimo = 1000 * 60 * 3; //3 minutos
+    private static final long distanciaMinima = 500;
+//    private LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +102,8 @@ public class SignupActivity extends AppCompatActivity {
         inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
+        obtenerCoords();
+
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,7 +111,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-        inputFechaNac.setOnClickListener(new View.OnClickListener(){
+        inputFechaNac.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 /*new DatePickerDialog(SignupActivity.this, date, calendario
@@ -105,10 +122,10 @@ public class SignupActivity extends AppCompatActivity {
                             @Override
                             public void onDateSet(DatePickerFragmentDialog v, int dayOfMonth,
                                                   int monthOfYear, int year) {
-                                inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear+1)
+                                inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear + 1)
                                         + "-" + year);
                             }
-                        },2000,01,11);
+                        }, 2000, 01, 11);
                 datePickerFragmentDialog.setMaxDate(System.currentTimeMillis());
                 datePickerFragmentDialog.show(getSupportFragmentManager(), null);
             }
@@ -138,12 +155,12 @@ public class SignupActivity extends AppCompatActivity {
                             "mínimo 6 caracteres", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (TextUtils.isEmpty(nombre)){
+                if (TextUtils.isEmpty(nombre)) {
                     Toast.makeText(getApplicationContext(), "Introduce un nombre"
                             , Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(TextUtils.isEmpty(fecha)){
+                if (TextUtils.isEmpty(fecha)) {
                     Toast.makeText(getApplicationContext(), "Introduce una fecha de" +
                             "nacimiento", Toast.LENGTH_SHORT).show();
                     return;
@@ -153,24 +170,24 @@ public class SignupActivity extends AppCompatActivity {
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignupActivity.this, new
                                 OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(SignupActivity.this,
-                                        "createUserWithEmail:onComplete:" + task.isSuccessful(),
-                                        Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                // If sign in fails, display a message to the user. If sign in succeeds
-                                // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
-                                if (!task.isSuccessful()) { //En caso de error o correo existente
-                                    Toast.makeText(SignupActivity.this,
-                                            "Authentication"+" failed." + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
-                                    Log.i("Response","Failed to create user: "
-                                            +task.getException().getMessage());
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        Toast.makeText(SignupActivity.this,
+                                                "createUserWithEmail:onComplete:" + task.isSuccessful(),
+                                                Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE);
+                                        // If sign in fails, display a message to the user. If sign in succeeds
+                                        // the auth state listener will be notified and logic to handle the
+                                        // signed in user can be handled in the listener.
+                                        if (!task.isSuccessful()) { //En caso de error o correo existente
+                                            Toast.makeText(SignupActivity.this,
+                                                    "Authentication" + " failed." + task.getException(),
+                                                    Toast.LENGTH_SHORT).show();
+                                            Log.i("Response", "Failed to create user: "
+                                                    + task.getException().getMessage());
 
-                                } else {
-                                    //I: Registro correcto --> enviar email verificación
+                                        } else {
+                                            //I: Registro correcto --> enviar email verificación
                            /*         user = auth.getCurrentUser();
                                     enviarVerif(); //Llamada a método para enviar email verificación*/
                                     /*if(!user.isEmailVerified()) {//I: revisar este if
@@ -185,15 +202,130 @@ public class SignupActivity extends AppCompatActivity {
                                                 MainUserActivity.class));
                                         finish();
                                     }*/
-                                }
-                            }
-                        });
+                                        }
+                                    }
+                                });
                 //Introducimos informacion en nuestra base de datos, no en firebase
-                nuevoUsuario(email, nombre, fecha);
+                nuevoUsuario(email, nombre, fecha, coordsGPS);
 
             }
 
         });
+    }
+
+    //Método obtención de coordenadas
+    private void obtenerCoords() {
+        String serviceString = Context.LOCATION_SERVICE;
+        locationManager = (LocationManager) getSystemService(serviceString);
+
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+
+        myLocationListener = new android.location.LocationListener() {
+            public void onLocationChanged(Location locationListener) {
+
+                if (gpsHabilitado(SignupActivity.this)) {
+                    if (locationListener != null) {
+                        if (ActivityCompat.checkSelfPermission(SignupActivity.this,
+                                android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                                PackageManager.PERMISSION_GRANTED &&
+                                ActivityCompat.checkSelfPermission(SignupActivity.this,
+                                        android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                                        PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+
+                        if (locationManager != null) {
+                            location = locationManager
+                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }
+                        }
+                    }
+                } else if (internetConectado(SignupActivity.this)) {
+                    if (locationManager != null) {
+                        location = locationManager
+                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+
+                            //introducimos los valores en el string que se enviará junto al
+                            //al resto de datos del usuario en el registro.
+                            coordsGPS = latitude + "," + longitude;
+                        }
+                    }
+                }
+            }
+            public void onProviderDisabled(String provider) {
+            }
+            public void onProviderEnabled(String provider) {
+            }
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+        };
+    }
+
+    //Comprobamos que el gps esté habilitado para poder obtener ubicación
+    public boolean gpsHabilitado(Context mContext) {
+        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    //Comprobamos que haya internet para localización mediante network
+    public static boolean internetConectado(Context ctx) {
+        ConnectivityManager connectivityMgr = (ConnectivityManager) ctx
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifi = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        //Comprobamos si el WiFi o los datos móviles están disponibles o no. Si alguno de ellos
+        //está disponible o conectado devolverá true, si no, false.
+        if (wifi != null) {
+            if (wifi.isConnected()) {
+                return true;
+            }
+        }
+        if (mobile != null) {
+            if (mobile.isConnected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Diálogo solicitando permisos para la utilización de la ubicación.
+    public void showSettingsAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+        // Título del diálogo
+        alertDialog.setTitle("Opciones GPS");
+        // Mensaje del diálogo
+        alertDialog.setMessage("Es necesario obtener ubicación GPS." +
+                " ¿Desea ir al menú de configuración?");
+        // Si se pulsa ir al menú de ajustes
+        alertDialog.setPositiveButton("Ajustes ", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                mContext.startActivity(intent);
+            }
+        });
+        // Si se pulsa el botón cancelar
+        alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        // Mostrar mensaje de alerta
+        alertDialog.show();
     }
 
     /*private void enviarVerif(){ //método para enviar email de verificación
@@ -213,6 +345,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
     }*/
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -225,7 +358,7 @@ public class SignupActivity extends AppCompatActivity {
                 .build();
         searchAPI = retrofit.create(ElasticSearchAPI.class);
     }
-    private void nuevoUsuario(String correo, String nombre, String fechaNac){
+    private void nuevoUsuario(String correo, String nombre, String fechaNac, String coords){
 
         //Generamos un authentication header para identificarnos contra Elasticsearch
         HashMap<String, String> headerMap = new HashMap<String, String>();
@@ -238,7 +371,7 @@ public class SignupActivity extends AppCompatActivity {
                             "\"correousu\":\"" + correo + "\",\n" +
                             "\"nombre\":\"" + nombre + "\",\n" +
                             "\"fechaNac\":\""+ fechaNac + "\",\n" +
-                            "\"primUbic\":\"" + "37.761533, -3.798992" + "\",\n" +
+                            "\"primUbic\":\"" + coords + "\",\n" +
                             "\"discapaz\":\"" + 0 + "\"\n" +
                         "}";
             jsonObject = new JSONObject(queryJson);
@@ -277,18 +410,6 @@ public class SignupActivity extends AppCompatActivity {
                         jsonResponse = response.errorBody().string(); //error response body
                         System.out.println("Response body: " + jsonResponse);
                     }
-
-                    /*Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
-
-                    for(int i = 0; i < hits.getHits().size(); i++){
-                        Log.d(TAG, "onResponse: data: " + hits.getHits()
-                                .get(i).getSource().toString());
-                        //mMedicion.add(hits.getHits().get(i).getSource());
-                    }
-
-                    Log.d(TAG, "onResponse: size: ");*/
-
-
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }

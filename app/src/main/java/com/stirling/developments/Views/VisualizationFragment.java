@@ -142,7 +142,7 @@ public class VisualizationFragment extends Fragment
 //                Context.MODE_PRIVATE);
         ButterKnife.bind(this, view);
         lastX = 0;
-//        serie1 = new LineGraphSeries<>(); //añadirle las temperaturas anteriores a la actual
+        serie1 = new LineGraphSeries<>(); //añadirle las temperaturas anteriores a la actual
         serie2 = new LineGraphSeries<>();
         mMedicion = new ArrayList<Source>(); //Mediciones
 
@@ -160,6 +160,12 @@ public class VisualizationFragment extends Fragment
 
         //Inicializamos el gráfico
         iniciarGrafico(graphView);
+
+        //Inicializamos contador de cazuelas si las hay
+        if(mCazuela.size() > 0){
+            tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
+                    mCazuela.size());
+        }
 
         final Handler handler = new Handler();
         /* your code here */
@@ -283,7 +289,7 @@ public class VisualizationFragment extends Fragment
                         "  \"aggs\": {\n" +
                         "    \"myAgg\": {\n" +
                         "      \"top_hits\": {\n" +
-                        "        \"size\": 10,\n" +
+                        "        \"size\": 2,\n" +
                         "        \"sort\": [\n" +
                         "          {\n" +
                         "            \"timestamp\":{\n" +
@@ -353,8 +359,122 @@ public class VisualizationFragment extends Fragment
                     String fjroi = hits.getHits().get(0).getSource().getTimestamp();
                     int taInt = hits.getHits().get(0).getSource().getTempsInt();
                     lastX++;//sustituir por hora?
-                    serie2.appendData(new DataPoint(lastX ,taInt),true,100);
+                    serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
 
+                }catch (NullPointerException e){
+                    Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
+                }
+                catch (IndexOutOfBoundsException e){
+                    Log.e(TAG, "onResponse: IndexOutOfBoundsException: " + e.getMessage() );
+                }
+                catch (IOException e){
+                    Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Example> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void primerasTemps(){
+        String macC = macCurrentCazuela;
+        //Generamos un authentication header para identificarnos contra Elasticsearch
+        HashMap<String, String> headerMap = new HashMap<String, String>();
+        headerMap.put("Authorization", Credentials.basic("android",
+                mElasticSearchPassword));
+        String searchString = "";
+        try {
+            //Este es el JSON en el que especificamos los parámetros de la búsqueda
+            queryJson = "{\n" +
+                    "  \"query\":{ \n" +
+                    "    \"bool\":{\n" +
+                    "      \"must\": [\n" +
+                    "        {\"match\": {\n" +
+                    "          \"idMac\": \"" + macC + "\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"aggs\": {\n" +
+                    "    \"myAgg\": {\n" +
+                    "      \"top_hits\": {\n" +
+                    "        \"size\": 500,\n" +
+                    "        \"sort\": [\n" +
+                    "          {\n" +
+                    "            \"timestamp\":{\n" +
+                    "              \"order\": \"desc\"\n" +
+                    "            }\n" +
+                    "          }]\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+            jsonObject = new JSONObject(queryJson);
+        }catch (JSONException jerr){
+            Log.d("Error: ", jerr.toString());
+        }
+        //Creamos el body con el JSON
+        RequestBody body = RequestBody.create(okhttp3.MediaType
+                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
+        //Realizamos la llamada mediante la API
+        Call<Example> call = searchAPI.searchHitsAgg(headerMap, body);
+        call.enqueue(new Callback<Example>() {
+            @Override
+            public void onResponse(Call<Example> call, Response<Example> response) {
+                Example example;
+                Aggregations aggregations;
+                MyAgg  myAgg;
+                Hits hits = new Hits();
+                Hit hit = new Hit();
+                String jsonResponse = "";
+                try{
+                    Log.d(TAG, "onResponse: server response: " + response.toString());
+                    //Si la respuesta es satisfactoria
+                    if(response.isSuccessful()){
+                        Log.d(TAG, "repsonseBody: "+ response.body().toString());
+                        example = response.body();
+                        aggregations = example.getAggregations();
+                        myAgg = aggregations.getMyAgg();
+                        hits = myAgg.getHits();
+                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
+                                .toString());
+                    }else{
+                        jsonResponse = response.errorBody().string(); //error response body
+                    }
+
+                    Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
+
+                    for(int i = 0; i < hits.getHits().size(); i++){
+                        Log.d(TAG, "onResponse: data: " + hits.getHits()
+                                .get(i).getSource().toString());
+                        mMedicion.add(hits.getHits().get(i).getSource());
+                    }
+
+                    Log.d(TAG, "onResponse: size: " + mMedicion.size());
+                    //setup the list of posts
+
+                    //Actualizamos temperatura con la última obtenida
+                    String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
+                    tvTemperature.setText(ta + "ºC");
+                    Log.i("Tª: ", "Temperatura actualizada: "+ ta + " ºC");
+                    Log.i("Tª: ", "Temperatura tapa: " + hits.getHits().get(0).getSource()
+                            .getTempsTapa().toString()+ " ºC");
+
+                    //Actualizamos la MAC de la cazuela mostrada
+                    String mac = hits.getHits().get(0).getSource().getIdMac(); //.toString()
+                    tvMAC.setText(" " + mac + " ");
+
+                    //Introducimos las temperaturas anteriores en la primera serie
+                    for (int i = 0; i <= mMedicion.size() ; i++){
+                        lastX++;
+                        //Añadir el array con las últimas X mediciones
+                        serie1.appendData(new DataPoint(lastX, tempOlla),
+                                true, 500);
+                    }
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
                 }
@@ -382,20 +502,15 @@ public class VisualizationFragment extends Fragment
         viewport.setMaxX(80);//ver qué hace esta historia
         viewport.setScalable(true);
 
-        serie2.setTitle("Últimas temperaturas");
+        serie1.setTitle("Temperaturas anteriores");
+        serie1.setAnimated(true);
+        graphView.addSeries(serie1);
+
+        serie2.setTitle("Temperaturas en directo");
         serie2.setAnimated(true);
         graphView.addSeries(serie2);
 
         lastX=0;
-    }
-
-    private void actualizarGrafico(){
-       /* serie1.appendData(new DataPoint(lastX++, tempOlla), true, 10);
-        for (int i = 0; i <= mMedicion.size() ; i++){
-            //Añadir el array con las últimas X mediciones
-            //Luego, añadir otro array en el que ir añadiendo las mediciones en directo
-
-        }*/
     }
 
     private void goToAppropriateCazuela()
@@ -404,7 +519,6 @@ public class VisualizationFragment extends Fragment
         tvMAC.setText(macCurrentCazuela);
         nombreCazuela.setText(currentCazuela.getNombreCazuela());
     }
-
 
     /*
        Esta función detecta cuando se produce un cambio de página
