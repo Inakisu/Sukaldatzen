@@ -122,8 +122,14 @@ public class SignupActivity extends AppCompatActivity {
                             @Override
                             public void onDateSet(DatePickerFragmentDialog v, int dayOfMonth,
                                                   int monthOfYear, int year) {
-                                inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear + 1)
-                                        + "-" + year);
+                                if(monthOfYear<9){//Si no hay 0 en meses de 1 cifra la BD rechaza
+                                    inputFechaNac.setText(dayOfMonth + "-0" + (monthOfYear + 1)
+                                            + "-" + year);
+                                }else{
+                                    inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear + 1)
+                                            + "-" + year);
+                                }
+
                             }
                         }, 2000, 01, 11);
                 datePickerFragmentDialog.setMaxDate(System.currentTimeMillis());
@@ -225,7 +231,11 @@ public class SignupActivity extends AppCompatActivity {
                 ActivityCompat.checkSelfPermission(this,
                         android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
                         PackageManager.PERMISSION_GRANTED) {
-            return;
+            //No hay permisos, hay que pedirlos
+            Log.e("Location", "No hay permisos de localización.1");
+            System.out.println(" %%%% Return 1 - No permisos localización %%%%");
+//            return;
+            showSettingsAlert();
         }
 
 
@@ -240,6 +250,8 @@ public class SignupActivity extends AppCompatActivity {
                                 ActivityCompat.checkSelfPermission(SignupActivity.this,
                                         android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
                                         PackageManager.PERMISSION_GRANTED) {
+                            Log.e("Location", "No hay permisos de localización.2");
+                            System.out.println(" %%%% Return 2 - No permisos localización %%%%");
                             return;
                         }
 
