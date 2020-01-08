@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -65,6 +66,9 @@ public class SignupActivity extends AppCompatActivity {
     private Retrofit retrofit;
     final Calendar calendario = Calendar.getInstance();
 
+    //get access to location permission
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
     private final Context mContext = this;
     private Location location;
     private double latitude;
@@ -102,7 +106,8 @@ public class SignupActivity extends AppCompatActivity {
         inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        obtenerCoords();
+        comprobarPermisos();
+//        obtenerCoords();
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,7 +240,7 @@ public class SignupActivity extends AppCompatActivity {
             Log.e("Location", "No hay permisos de localización.1");
             System.out.println(" %%%% Return 1 - No permisos localización %%%%");
 //            return;
-            showSettingsAlert();
+//            showSettingsAlert();
         }
 
 
@@ -261,6 +266,9 @@ public class SignupActivity extends AppCompatActivity {
                             if (location != null) {
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
+//                              introducimos los valores en el string que se enviará junto al
+                                //resto de datos del usuario en el registro
+                                coordsGPS = latitude + "," + longitude;
                             }
                         }
                     }
@@ -286,6 +294,37 @@ public class SignupActivity extends AppCompatActivity {
             public void onStatusChanged(String provider, int status, Bundle extras) {
             }
         };
+    }
+
+    private void comprobarPermisos() {
+        if ( Build.VERSION.SDK_INT >= 23){
+            if (ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED  ){
+                        requestPermissions(new String[]{
+                                        android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                REQUEST_CODE_ASK_PERMISSIONS);
+                return ;
+            }
+        }
+
+        obtenerCoords();
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    obtenerCoords();
+                } else {
+                    // Permission Denied
+                    Toast.makeText( this,"your message" , Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     //Comprobamos que el gps esté habilitado para poder obtener ubicación
