@@ -239,17 +239,7 @@ public class VisualizationFragment extends Fragment
                         seekBarTime.getProgress() + "min."));
             }
         });
-        //Mostrar/ocultar el gráfico
-       /* botonGraf.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                if(graphView.getVisibility() == View.VISIBLE){
-                    graphView.setVisibility(View.GONE);
-                }else{
-                    graphView.setVisibility(View.VISIBLE);
-                }
-            }
-        });*/
+        //Controlamos si mostrar u ocultar el gráfico dependiendo del estado del switch
         switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean oncendido) {
                 if(oncendido)
@@ -258,16 +248,25 @@ public class VisualizationFragment extends Fragment
                     graphView.setVisibility(View.GONE);
             }
         });
-        //I: Cambio de color de círculo de temperatura
-        tvTemperature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
     }
 
+    //Cambio de color del círculo de temperatura
+    public void actualizarColor(){
 
+        int temp1 = getResources().getInteger(R.integer.tempVerdeMenorQue);
+        int temp2 = getResources().getInteger(R.integer.tempAmarillaMayVerMenQue);
+        int temp3 = getResources().getInteger(R.integer.tempRojaMayorQue);
+        if(tempOlla < temp1){
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempVerde));
+        }else if(temp1 < tempOlla && tempOlla < temp2){
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempAmarillo));
+        }else if(tempOlla < temp3){
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempRojo));
+        }else{
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.material_grey300));
+        }
+    }
 
     public void saveArrayList(ArrayList<Cazuela> list, String key){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -371,8 +370,10 @@ public class VisualizationFragment extends Fragment
                     //Introducimos esta última temperatura en la segunda serie
                     String fjroi = hits.getHits().get(0).getSource().getTimestamp();
                     int taInt = hits.getHits().get(0).getSource().getTempsInt();
+                    tempOlla = taInt;
                     lastX++;//sustituir por hora?
                     serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
+                    actualizarColor();
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );

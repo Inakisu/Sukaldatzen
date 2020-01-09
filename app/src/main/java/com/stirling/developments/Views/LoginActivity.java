@@ -180,6 +180,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
                 startActivityForResult(signInIntent, 101);
+
+                //Obtener correo e información y si falta algo solicitarla para meterlo a BD
+
             }
         });
 
