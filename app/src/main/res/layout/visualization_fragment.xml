@@ -14,13 +14,18 @@
         android:orientation="vertical"
         android:gravity="center">
 
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graph"
+            android:layout_width="308dp"
+            android:layout_height="200dip" />
+
         <com.libRG.CustomTextView
             android:id="@+id/temperatureIndicator"
-            android:layout_width="175dp"
+            android:layout_width="179dp"
             android:layout_height="175dp"
             android:layout_margin="15dp"
             android:gravity="center"
-            android:padding="10dp"
+            android:padding="5dp"
             android:textColor="@color/md_white"
             android:textSize="40dp"
             android:textStyle="bold"
@@ -32,27 +37,24 @@
             app:lib_setRoundedView="true"
             app:lib_setShape="oval" />
 
-        <TextView
-            android:id="@+id/textNombreCazuela"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layoutSwitch"
+            android:layout_width="147dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/round_corners"
-            android:ellipsize="marquee"
-            android:text=" nombre "
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:layout_weight="1"
+            android:gravity="bottom|center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/botonGrafico"
-            android:layout_width="163dp"
-            android:layout_height="wrap_content"
-            android:text="Gráfico" />
+            <Switch
+                android:id="@+id/switchGrafico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/graph"
-            android:layout_width="308dp"
-            android:layout_height="200dip" />
+                android:layout_weight="1"
+                android:text="Gráfico"
+                android:textSize="18sp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:visibility="gone"

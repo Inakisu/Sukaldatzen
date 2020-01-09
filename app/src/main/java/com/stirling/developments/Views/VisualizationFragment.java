@@ -15,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -121,9 +123,10 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.bSetAlarm) TextView bSetTemperatureAlarm;
     @BindView(R.id.bSetTime) TextView bSetTimeAlarm;
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
-    @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
+//    @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
     @BindView(R.id.graph) GraphView graphView;
-    @BindView(R.id.botonGrafico) Button botonGraf;
+//    @BindView(R.id.botonGrafico) Button botonGraf;
+    @BindView(R.id.switchGrafico) Switch switchGraph;
 
     @Nullable
     @Override
@@ -160,6 +163,8 @@ public class VisualizationFragment extends Fragment
 
         //Inicializamos el gráfico
         iniciarGrafico(graphView);
+        //..y lo ocultamos
+        graphView.setVisibility(View.GONE);
 
         //Inicializamos contador de cazuelas si las hay
         if(mCazuela.size() > 0){
@@ -235,7 +240,7 @@ public class VisualizationFragment extends Fragment
             }
         });
         //Mostrar/ocultar el gráfico
-        botonGraf.setOnClickListener(new View.OnClickListener(){
+       /* botonGraf.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 if(graphView.getVisibility() == View.VISIBLE){
@@ -243,6 +248,14 @@ public class VisualizationFragment extends Fragment
                 }else{
                     graphView.setVisibility(View.VISIBLE);
                 }
+            }
+        });*/
+        switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean oncendido) {
+                if(oncendido)
+                    graphView.setVisibility(View.VISIBLE);
+                else
+                    graphView.setVisibility(View.GONE);
             }
         });
         //I: Cambio de color de círculo de temperatura
@@ -517,7 +530,7 @@ public class VisualizationFragment extends Fragment
     {
         macCurrentCazuela = currentCazuela.getIdMac();
         tvMAC.setText(macCurrentCazuela);
-        nombreCazuela.setText(currentCazuela.getNombreCazuela());
+        tvStatus.setText(currentCazuela.getNombreCazuela());
     }
 
     /*
