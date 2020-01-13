@@ -146,7 +146,7 @@ public class MainUserActivity extends AppCompatActivity {
         });
 
         openNewFragment(new VisualizationFragment(), "VisualizationFragment",
-                null, true);
+                null, false);
         menu = navigationView.getMenu();
         modulos = menu.addSubMenu("Módulos");
 
