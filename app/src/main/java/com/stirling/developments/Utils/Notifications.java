@@ -34,8 +34,10 @@ public class Notifications
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(title)
                     .setContentText(message)
+                    .setVibrate(new long[]{ 500,500,250,500,500,500,250})
                     .setTicker(title + " " + message)
                     .setAutoCancel(true)
+                    .setLights(0xff0000ff, 100,100)
                     .setContentIntent(pendingIntent);
 
             notificationManager.notify(0, noBuilder.build()); //0 = ID of notification

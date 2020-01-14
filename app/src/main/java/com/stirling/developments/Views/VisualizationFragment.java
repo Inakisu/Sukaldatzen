@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -46,6 +47,7 @@ import com.stirling.developments.Models.gson2pojo.Source;
 import com.stirling.developments.R;
 import com.stirling.developments.Utils.Constants;
 import com.stirling.developments.Utils.ElasticSearchAPI;
+import com.stirling.developments.Utils.Notifications;
 import com.stirling.developments.Utils.SwipeDetector;
 //I: Search API de Elasticsearch
 import org.json.JSONException;
@@ -108,6 +110,12 @@ public class VisualizationFragment extends Fragment
     private PopupWindow popupWindow;
     private Button botonAceptar;
     private Button botonCancelar;
+
+    private boolean seguir = false;
+    private boolean rCorriendo = false;
+    private int minutosTemp = 0;
+    private long millisCounter = 0;
+    private float mil = 0;
 
 
     @BindView(R.id.cazuelaMAC) TextView tvMAC;
@@ -217,26 +225,46 @@ public class VisualizationFragment extends Fragment
             }
 
         });
-        //Set temperature alarm click listener
+        //Boton poner alamra temperatura
         bSetTemperatureAlarm.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-//              currentCazuela.setTemperatureAlarm(seekBarTemp.getProgress());
-                temperatureThreshold.setText(Html.fromHtml("<b>Temperature limit: </b>" +
-                        seekBarTemp.getProgress() + "ºC"));
+                if(bSetTemperatureAlarm.getText().equals("Activar")){ //Activar alarma
+                    temperatureThreshold.setText(Html.fromHtml("<b>Temperatura límite: </b>" +
+                            seekBarTemp.getProgress() + "ºC"));
+                    bSetTemperatureAlarm.setText("Desactivar");
+                }else{ //Desactivar alarma
+                    temperatureThreshold.setText(Html.fromHtml("<b> </b>"));
+                    bSetTemperatureAlarm.setText("Activar");
+                }
             }
         });
-        //Set temperature alarm click listener
+        //Boton poner temporizador
         bSetTimeAlarm.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-//                currentCazuela.setTimeAlarm(seekBarTime.getProgress());
-                timeAlarm.setText(Html.fromHtml("<b>Time remaining:</b> " +
+                if(bSetTimeAlarm.getText().toString().equals("Activar")){ //Activar temporizador
+                    timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
+                            seekBarTime.getProgress() + "min."));
+                    if(!rCorriendo){
+                        seguir = true;
+                    }
+                    minutosTemp = seekBarTime.getProgress();
+                    bSetTimeAlarm.setText("Desactivar");
+                    seguir = true;
+                    arrancarTimer();
+                }else{ //Desactivar temporizador
+                    bSetTimeAlarm.setText("Activar");
+                    seguir = false;
+                    timeAlarm.setText(Html.fromHtml(" "));
+                }
+                timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
                         seekBarTime.getProgress() + "min."));
+
             }
         });
         //Controlamos si mostrar u ocultar el gráfico dependiendo del estado del switch
@@ -249,6 +277,73 @@ public class VisualizationFragment extends Fragment
             }
         });
 
+    }
+    //Encender contador que funciona si 'true' durante X minutos establecidos en var. minutosTemp.
+    public void arrancarTimer(){
+        millisCounter = minutosTemp*60*1000; //Trabajamos con millisegundos
+//        handler = new Handler();
+//        seguir = true;
+       /* runnable = new Runnable() {
+            public void run(){
+                handler.postDelayed(this, 1000);
+
+                mil = 0;
+                try {
+                    if(millisCounter <=1000){
+                            pararTimer();
+                    }else{
+                        if(seguir){
+                            millisCounter = millisCounter - 1000;
+                            mil = millisCounter /60 / 1000;
+                            seekBarTime.setProgress(Math.round(mil));
+                        }else{
+                            pararTimer();
+                        }
+                    }
+
+                    timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
+                            Math.round(mil) + "min."));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };*/
+        mil = 0;
+        new unCountDown(millisCounter, 1000).start();
+    }
+
+    public class unCountDown extends CountDownTimer {
+
+        public unCountDown(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+            seekBarTime.setMax((int) millisInFuture);
+        }
+
+        @Override
+        public void onFinish() {
+            timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
+                    "Finalizado"));
+            seekBarTime.setMax(120);
+            Notifications.show(getActivity(), VisualizationFragment.class,
+                    "Temporizador olla", "El temporizador ha finalizado.");
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if(!seguir){
+                this.cancel();
+                seekBarTime.setMax(120);
+            }
+            millisCounter = millisCounter - 1000;
+            mil = millisCounter /60 / 1000;
+            timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
+                    Math.round(mil) + "min."));
+            seekBarTime.setProgress(Math.round(millisUntilFinished));
+            long timeRemaining = millisUntilFinished;
+            seekBarTime.setProgress((int) (timeRemaining));
+            //Log.i(TAG, "Time tick: " + millisUntilFinished);
+        }
     }
 
     //Cambio de color del círculo de temperatura
