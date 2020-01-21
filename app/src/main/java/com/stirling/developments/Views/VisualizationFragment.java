@@ -79,8 +79,6 @@ public class VisualizationFragment extends Fragment
 //    private static SharedPreferences.Editor editor = sharedPreferences.edit();
 
 
-    private DatabaseReference usersReference, cazuelasReference;
-    private ValueEventListener valueEventListener;
     private int currentPage;
     private ArrayList<Cazuela> cazuelas;
     private Cazuela currentCazuela;
@@ -95,6 +93,8 @@ public class VisualizationFragment extends Fragment
     private FirebaseAuth mAuth;
     private Retrofit retrofit;
     private ElasticSearchAPI searchAPI;
+    private boolean alTAct = false;
+
 
     private String elCorreo = "";
     private String queryJson = "";
@@ -187,6 +187,7 @@ public class VisualizationFragment extends Fragment
             public void run() {
                 handler.postDelayed(this, 2 * 1000); // every 2 seconds
                 //lo que queremos que haga cada dos segundos
+                comprobarAlarmaT(alTAct);
                 actualizarTemperatura();
 //                actualizarGrafico();
             }
@@ -234,6 +235,7 @@ public class VisualizationFragment extends Fragment
                 if(bSetTemperatureAlarm.getText().equals("Activar")){ //Activar alarma
                     temperatureThreshold.setText(Html.fromHtml("<b>Temperatura límite: </b>" +
                             seekBarTemp.getProgress() + "ºC"));
+                    alTAct=true;
                     bSetTemperatureAlarm.setText("Desactivar");
                 }else{ //Desactivar alarma
                     temperatureThreshold.setText(Html.fromHtml("<b> </b>"));
@@ -281,36 +283,18 @@ public class VisualizationFragment extends Fragment
     //Encender contador que funciona si 'true' durante X minutos establecidos en var. minutosTemp.
     public void arrancarTimer(){
         millisCounter = minutosTemp*60*1000; //Trabajamos con millisegundos
-//        handler = new Handler();
-//        seguir = true;
-       /* runnable = new Runnable() {
-            public void run(){
-                handler.postDelayed(this, 1000);
-
-                mil = 0;
-                try {
-                    if(millisCounter <=1000){
-                            pararTimer();
-                    }else{
-                        if(seguir){
-                            millisCounter = millisCounter - 1000;
-                            mil = millisCounter /60 / 1000;
-                            seekBarTime.setProgress(Math.round(mil));
-                        }else{
-                            pararTimer();
-                        }
-                    }
-
-                    timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
-                            Math.round(mil) + "min."));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };*/
         mil = 0;
         new unCountDown(millisCounter, 1000).start();
+    }
+    public void comprobarAlarmaT(boolean activada){
+        if(activada){
+            if(tempOlla>=seekBarTemp.getProgress()){
+                Notifications.show(getActivity(), VisualizationFragment.class,
+                        "Temperatura tupper", "Temperatura consigna alcanzada");
+                bSetTemperatureAlarm.setText("Activar");
+                alTAct =false;
+            }
+        }
     }
 
     public class unCountDown extends CountDownTimer {
@@ -327,6 +311,7 @@ public class VisualizationFragment extends Fragment
             seekBarTime.setMax(120);
             Notifications.show(getActivity(), VisualizationFragment.class,
                     "Temporizador olla", "El temporizador ha finalizado.");
+            bSetTimeAlarm.setText("Activar");
         }
 
         @Override

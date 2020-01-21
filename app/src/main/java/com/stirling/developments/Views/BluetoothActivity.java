@@ -1,6 +1,7 @@
 package com.stirling.developments.Views;
 
 import android.Manifest;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -304,7 +305,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
 
                         Log.v("Devices found: ", String.valueOf(ble.getListDevices()));
-                        //Mi lista
+                        //Lista de disp. encontrados
                         arBLEEncont = ble.getListDevices();
                         //Ahora pasamos de una lista de dispositivos bluetooh
                         //a una lista de Strings para poder mostrarla en el ListView
@@ -573,6 +574,7 @@ public class BluetoothActivity extends AppCompatActivity {
 //            busquedaEntrada(obtenidaMACWiFi,email);
             borrarLaCazuela(obtenidaMACWiFi, email);
         }
+
     }
 
     //Buscamos en cazuelas_sukaldatzen alguna entrada con MAC y correo para eliminarla.

@@ -30,8 +30,8 @@ public class Notifications
                     PendingIntent.FLAG_ONE_SHOT);
             NotificationCompat.Builder noBuilder = new NotificationCompat.Builder(ctx, "")
                     .setLargeIcon(BitmapFactory.decodeResource(ctx.getResources(),
-                            R.mipmap.ic_launcher))
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                            R.mipmap.ic_launcher_iconolla))
+                    .setSmallIcon(R.mipmap.ic_launcher_iconolla)
                     .setContentTitle(title)
                     .setContentText(message)
                     .setVibrate(new long[]{ 500,500,250,500,500,500,250})
@@ -56,7 +56,7 @@ public class Notifications
             }
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(ctx, channelId)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_launcher_iconolla)
                     .setContentTitle(title)
                     .setContentText(message);
 
