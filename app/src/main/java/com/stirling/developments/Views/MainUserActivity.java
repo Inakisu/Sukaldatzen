@@ -151,8 +151,16 @@ public class MainUserActivity extends AppCompatActivity {
         modulos = menu.addSubMenu("Módulos");
 
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        actualizarDrawer();
+    }
 
-//    final Menu menu = navigationView.getMenu();
 
     /**************************************************************************
      *  /name: openNewFragment

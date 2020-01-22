@@ -379,24 +379,6 @@ public class SignupActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    /*private void enviarVerif(){ //método para enviar email de verificación
-        user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    Toast.makeText(getApplicationContext(), "Email de verificación enviado a: "
-                            + user.getEmail(), Toast.LENGTH_SHORT).show();
-                    Log.d("Verificación","Email de verificación enviado a: "+
-                            user.getEmail());
-                }else{
-                    Log.e(TAG, "sendEmailVerification", task.getException());
-                    Toast.makeText(getApplicationContext(), "Fallo al enviar email verificación",
-                            +Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }*/
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -437,11 +419,6 @@ public class SignupActivity extends AppCompatActivity {
         call.enqueue(new Callback<RespuestaU>() {
             @Override
             public void onResponse(Call<RespuestaU> call, Response<RespuestaU> response) {
-//                Example example;
-//                Aggregations aggregations;
-//                MyAgg myAgg;
-//                Hits hits = new Hits();
-//                Hit hit = new Hit();
                 RespuestaU respuestaU = new RespuestaU();
                 String jsonResponse;
                 try{
@@ -451,10 +428,6 @@ public class SignupActivity extends AppCompatActivity {
                         Log.d(TAG, "repsonseBody: "+ response.body().toString());
                         System.out.println(respuestaU.toString());
                         System.out.println(respuestaU.getIndex());
-//                        example = response.body();
-//                        aggregations = example.getAggregations();
-//                        myAgg = aggregations.getMyAgg();
-//                        hits = myAgg.getHits();
                         Log.d(TAG, " -----------onResponse: la response: " + response.body()
                                 .toString());
                     }else{

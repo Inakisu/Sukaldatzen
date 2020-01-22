@@ -1,8 +1,6 @@
 package com.stirling.developments.Views;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -24,8 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
@@ -59,7 +55,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -94,8 +89,6 @@ public class VisualizationFragment extends Fragment
     private Retrofit retrofit;
     private ElasticSearchAPI searchAPI;
     private boolean alTAct = false;
-
-
     private String elCorreo = "";
     private String queryJson = "";
     private JSONObject jsonObject;
@@ -106,10 +99,6 @@ public class VisualizationFragment extends Fragment
     private final static int INTERVAL = 3500;
     private LineGraphSeries<DataPoint> serie1;
     private LineGraphSeries<DataPoint> serie2;
-
-    private PopupWindow popupWindow;
-    private Button botonAceptar;
-    private Button botonCancelar;
 
     private boolean seguir = false;
     private boolean rCorriendo = false;
@@ -278,6 +267,15 @@ public class VisualizationFragment extends Fragment
                     graphView.setVisibility(View.GONE);
             }
         });
+
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
 
     }
     //Encender contador que funciona si 'true' durante X minutos establecidos en var. minutosTemp.
@@ -614,78 +612,6 @@ public class VisualizationFragment extends Fragment
         tvStatus.setText(currentCazuela.getNombreCazuela());
     }
 
-    /*
-       Esta función detecta cuando se produce un cambio de página
-   */
-//    private ValueEventListener getValueEventListener()
-//    {
-//        valueEventListener =  new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
-//            {
-//                if(dataSnapshot != null)
-//                {
-//                    //Get most recent object
-//                    Cazuela cazuela = dataSnapshot.getValue(Cazuela.class);
-////                    currentCazuela.setTemperatura(cazuela.getTemperatura());
-////                    currentCazuela.setEstado(cazuela.getEstado());
-////                    currentCazuela.setMAC(cazuela.getMAC());
-////                    currentCazuela.setNombre(cazuela.getNombre());
-//
-//                    //Aquí ojo con los null pointer exception
-////                    ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Cazuela: "
-////                            + currentCazuela.getNombre());
-////                    tvTemperature.setText(currentCazuela.getTemperatura() + "ºC");
-////                    tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " + cazuelas.size());
-////                    tvMAC.setText(Html.fromHtml("<b>MAC:</b> " + currentCazuela.getMAC()));
-////                    tvStatus.setText(Html.fromHtml("<b>Status:</b> " +
-////                            (currentCazuela.getEstado() == true ? "Running" : "Stopped")));
-////                    temperatureThreshold.setText(Html.fromHtml("<b>Temp. Alarm:</b> " +
-////                            (currentCazuela.getTemperatureAlarm() == 0 ? "Disabled" :
-////                                    (currentCazuela.getTemperatureAlarm() + "ºC"))));
-////                    timeAlarm.setText(Html.fromHtml("<b>Time remaining:</b> " +
-////                            (currentCazuela.getTimeAlarm() == 0 ? "Disabled" :
-////                                    (currentCazuela.getTimeAlarm() + "min"))));
-//
-////                    if(currentCazuela.getEstado() == true)
-////                        tvTemperature.setBackgroundColor(currentCazuela.getTemperatura() < 100 ?
-////                                getContext().getColor(R.color.colorPrimary)
-////                            : currentCazuela.getTemperatura() > 150 ? getContext()
-////                                .getColor(R.color.material_red500)
-////                            : getContext().getColor(R.color.colorAccent));
-////                    else
-////                        tvTemperature.setBackgroundColor(getContext().getColor(R.color.material_grey500));
-//
-////                   if(currentCazuela.getTemperatura() > currentCazuela.getTemperatureAlarm()
-////                           && currentCazuela.getTemperatureAlarm() > 0 &&
-////                           currentCazuela.getTemperatureAlarmFired() == false)
-////                   {
-////                       Notifications.show(requireContext(), VisualizationFragment.class,
-////                               "Temperature alarm", "Current temperature is: " +
-////                                       currentCazuela.getTemperatura());
-////                       currentCazuela.setTemperatureAlarmFired(true);
-//                       tvTemperature.setBackgroundColor(getContext()
-//                               .getColor(R.color.material_black));
-//                   }
-//
-////                   if(currentCazuela.getEstado() == false) {
-////                       llAlarm.setVisibility(View.GONE);
-////                   }else {
-////                       llAlarm.setVisibility(View.VISIBLE);
-////                   }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                System.out.println("onCancelled del valueEventListener que detecta cuando hay un" +
-//                        "cambio de página");
-//            }
-//        };
-//
-//        return valueEventListener;
-//    }
-
     private void inicializarAPI(){
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.URL_ELASTICSEARCH)
@@ -700,7 +626,6 @@ public class VisualizationFragment extends Fragment
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
-        //elCorreo = "a@a.com"; //DE PRUEBA, HAY QUE BORRARLO AL ACABAR LAS PRUEBAS
         String searchString = "";
         try {
             queryJson = "{\n" +
@@ -776,232 +701,12 @@ public class VisualizationFragment extends Fragment
         });
     }
 
-  /*  public void addListaToShared(String key, List<Cazuela> list){
-        Gson gson = new Gson();
-        String json = gson.toJson(list);
-
-        set(key, json);
-    }*/
-  /*  public static void set(String key, String value) {
-        editor.putString(key, value);
-        editor.commit();
-    }*/
-
-    public void enPrueba(){ //throws IOException
-        //Prueba 3
-        mUsuario = new ArrayList<Usuario>();
-        //Constructor de Retrofit para conexión
-//        Retrofit retrofit = new Retrofit.Builder() //BaseURL (lo que va antes del _search/ )
-//                .baseUrl(Constants.URL_ELASTICSEARCH) //_search/ está en ESAPI
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//        //Construir API
-//        ElasticSearchAPI searchAPI = retrofit.create(ElasticSearchAPI.class);
-
-        //Hasmap utilizado para el header, en el que irá la autenticación
-        HashMap<String, String> headerMap = new HashMap<String, String>();
-        headerMap.put("Authorization", Credentials.basic("android",
-                mElasticSearchPassword));
-
-        String searchString = "";
-
-        /*if(!mIndice.equals("")){ //Texto a buscar en general
-            searchString = searchString + mIndice+ "*"; //.getText().toString()
-        }
-        if(!mAccion.equals("")){ //Aquí asginaremos la acción que se desea realizar. _search o _doc
-            searchString = searchString + "/" + mAccion;
-        }*/
-
-        //Escribimos sentencia JSON entexto y luego la pasamos a objetoJSON
-        try {
-            //elCorreo = "a@a.com";
-            queryJson = "{\n" +
-                        "  \"query\":{\n" +
-                        "    \"bool\":{\n" +
-                        "      \"must\": [\n" +
-                        "        {\"match\": {\n" +
-                        "          \"correousu\": \""+ elCorreo +"\"\n" +
-                        "          }\n" +
-                        "        }\n" +
-                        "      ]\n" +
-                        "    }\n" +
-                        "  }\n" +
-                        "}";
-            jsonObject = new JSONObject(queryJson);
-        }catch (JSONException err){
-            Log.d("Error", err.toString());
-        }
-        //Creamos el body con el objeto JSON
-        RequestBody body = RequestBody.create(okhttp3.MediaType
-                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-
-        //El método search que se ejecuta es el de la clase ElasticSearchAPI
-        Call<HitsObject> call = searchAPI.searchUsuario(headerMap, body);
-
-        call.enqueue(new Callback<HitsObject>() {
-            @Override
-            public void onResponse(Call<HitsObject> call, Response<HitsObject> response) {
-
-                HitsList hitsList = new HitsList();
-                String jsonResponse = "";
-                try{
-                    Log.d(TAG, "onResponse: server response: " + response.toString());
-
-                    if(response.isSuccessful()){
-                        hitsList = response.body().getHits();
-                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
-                                .toString());
-                    }else{
-                        jsonResponse = response.errorBody().string();
-                    }
-
-                    Log.d(TAG, "onResponse: hits: " + hitsList);
-
-                    for(int i = 0; i < hitsList.getUsuarioIndex().size(); i++){
-                        Log.d(TAG, "onResponse: data: " + hitsList.getUsuarioIndex().get(i)
-                                .getUsuario().toString());
-                        mUsuario.add(hitsList.getUsuarioIndex().get(i).getUsuario());
-                    }
-
-                    Log.d(TAG, "onResponse: size: " + mUsuario.size());
-                    //setup the list of posts
-
-                }catch (NullPointerException e){
-                    Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
-                }
-                catch (IndexOutOfBoundsException e){
-                    Log.e(TAG, "onResponse: IndexOutOfBoundsException: " + e.getMessage() );
-                }
-                catch (IOException e){
-                    Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HitsObject> call, Throwable t) {
-                Log.e(TAG, "onFailure: " + t.getMessage() );
-                Toast.makeText(getActivity(), "search failed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        /*RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(
-                new HttpHost("10.128.0.104", 9200, "http")));
-
-
-        SearchRequest searchRequest = new SearchRequest("usuario_sukaldatzen");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        searchRequest.source(searchSourceBuilder);
-
-        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-        for (SearchHit hit: searchResponse.getHits().getHits()){
-           System.out.println("-------------------- Esto: "+ hit.getSourceAsString());
-        }
-
-        client.close();*/
-
-        /*try {
-            /////////////////////////////////////
-            //I: Establecemos credenciales con las que se hará las querys contra la BD
-            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                    "android", "Becario2017"));
-            //I: Inicializar low-ora level client builder para que func. el High level
-            RestClientBuilder builder = RestClient.builder(new HttpHost("10.128.0.104", 9200))
-                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                            .setDefaultCredentialsProvider(credentialsProvider));
-
-            RestHighLevelClient highClient = new RestHighLevelClient(builder);
-            //I: añadimos una query de búsqueda a la petición
-            SearchRequest searchRequest = new SearchRequest();
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //Aqui casca
-
-            QueryBuilder qb = QueryBuilders.matchQuery(null,"a@a.com");
-
-            //qb.must(QueryBuilders.matchQuery("correousu", "a@a.com"));
-            searchRequest.indices("usuario_sukaldatzen");
-            searchRequest.source(searchSourceBuilder);
-            searchRequest.source().query(qb);
-
-            ///// Prueba 7
-            SearchSourceBuilder searchSB = new SearchSourceBuilder();
-
-            SearchRequest request = new SearchRequest();
-            request.source(searchSB);
-
-            SearchResponse response = highClient.search(request,RequestOptions.DEFAULT);
-            System.out.println("------------------Resultado: "+response.toString());
-            //////
-
-           *//* SearchResponse searchResponse = highClient.search(searchRequest,
-            RequestOptions.DEFAULT);
-
-            if (searchResponse.getHits().getTotalHits().value > 0){
-                System.out.println(searchResponse.getHits().getTotalHits());
-            }else{
-                System.out.println("No hay resultados para los criterios determinados.");
-            }*//*
-
-            //I: Ahora hacemos algo para probar esa response. También podría verse en el debugger
-            *//*SearchHit[] results = searchResponse.getHits().getHits();
-            for(SearchHit hit : results){
-
-                String sourceAsString = hit.getSourceAsString();
-                System.out.println("Resu: "+sourceAsString);
-            if (sourceAsString != null) {
-                Gson gson = new GsonBuilder().create();
-                System.out.println( gson.fromJson(sourceAsString, Firewall.class));
-            }
-            }*//*
-        }catch (IOException ex){
-            System.out.println("Excepción en el try de la query: "+ex);
-        }catch (ElasticsearchException esx){
-            System.out.println("Excepción ES en la query: "+ esx);
-        }
-
-*/
-        /////////////////////////////////////
-    }
-
     public void listarCazuelasUI(){
         for(Cazuela caz : mCazuela){
             //Añadimos una pantalla
         }
     }
 
-    /*private void popupsalir(){
-        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        View customView = layoutInflater.inflate(R.layout.popupsalir, null);
 
-        botonAceptar = (Button) customView.findViewById(R.id.aceptarBtn);
-        botonCancelar = (Button) customView.findViewById(R.id.cancelarBtn);
-
-        //Instanciamos la ventana popup salir
-        popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setAnimationStyle(R.style.DialogAnimation);
-
-        botonAceptar.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View w){
-
-            }
-        });
-        botonCancelar.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View w){
-                popupWindow.dismiss();
-            }
-        });
-    }
-
-    public void onBackPressed() {
-        popupsalir();
-        if(popupWindow.isShowing())
-            popupWindow.dismiss();
-        else
-            getActivity().finish();
-    }*/
 
 }
