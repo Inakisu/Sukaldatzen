@@ -1,6 +1,7 @@
 package com.stirling.developments.Views;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -13,8 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Switch;
@@ -105,7 +109,8 @@ public class VisualizationFragment extends Fragment
     private int minutosTemp = 0;
     private long millisCounter = 0;
     private float mil = 0;
-
+    Animation animBlink;
+    private Drawable abierto;
 
     @BindView(R.id.cazuelaMAC) TextView tvMAC;
     @BindView(R.id.cazuelaStatus) TextView tvStatus;
@@ -124,6 +129,8 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.graph) GraphView graphView;
 //    @BindView(R.id.botonGrafico) Button botonGraf;
     @BindView(R.id.switchGrafico) Switch switchGraph;
+    @BindView(R.id.imgAlerta) ImageView imgAlerta;
+    @BindView(R.id.imgCandado) ImageView imgCandado;
 
     @Nullable
     @Override
@@ -169,6 +176,10 @@ public class VisualizationFragment extends Fragment
                     mCazuela.size());
         }
 
+        //setteamos animación de parpadeo al indicador de temperatura
+        animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
+                R.anim.blink);
+
         final Handler handler = new Handler();
         /* your code here */
         new Runnable() {
@@ -178,6 +189,7 @@ public class VisualizationFragment extends Fragment
                 //lo que queremos que haga cada dos segundos
                 comprobarAlarmaT(alTAct);
                 actualizarTemperatura();
+                actualizarColor();
 //                actualizarGrafico();
             }
         }.run();
@@ -335,14 +347,33 @@ public class VisualizationFragment extends Fragment
         int temp1 = getResources().getInteger(R.integer.tempVerdeMenorQue);
         int temp2 = getResources().getInteger(R.integer.tempAmarillaMayVerMenQue);
         int temp3 = getResources().getInteger(R.integer.tempRojaMayorQue);
-        if(tempOlla < temp1){
+        if(tempOlla <= temp1){
+            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
+            imgCandado.setImageResource(R.drawable.ic_lock_open);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempVerde));
-        }else if(temp1 < tempOlla && tempOlla < temp2){
+            tvTemperature.clearAnimation();
+        }else if(temp1 < tempOlla && tempOlla <= temp2){
+            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
+            imgCandado.setImageResource(R.drawable.ic_lock_open);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempAmarillo));
-        }else if(tempOlla < temp3){
+            tvTemperature.clearAnimation();
+        }else if(temp2 < tempOlla && tempOlla <= temp3){
+            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
+            imgCandado.setImageResource(R.drawable.ic_lock_close);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempRojo));
+            tvTemperature.clearAnimation();
+        }else if(tempOlla > temp3){
+            imgAlerta.setImageResource(R.drawable.ic_warning);
+            imgCandado.setImageResource(R.drawable.ic_lock_close);
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempRojo));
+            //hacer que parpadee en rojo
+            tvTemperature.startAnimation(animBlink);
+            imgAlerta.setVisibility(View.VISIBLE);
         }else{
+            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
+            imgCandado.setImageResource(R.drawable.ic_lock_open);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.material_grey300));
+            tvTemperature.clearAnimation();
         }
     }
 
@@ -451,7 +482,6 @@ public class VisualizationFragment extends Fragment
                     tempOlla = taInt;
                     lastX++;//sustituir por hora?
                     serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
-                    actualizarColor();
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );

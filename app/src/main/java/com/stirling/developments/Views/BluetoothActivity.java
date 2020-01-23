@@ -231,7 +231,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     //Intentar obtener una dirección MAC escrita en hexadecimal
                     obtenidaMACWiFi = Arrays.toString(characteristic.getValue());
                     //obtenidaMACWiFi = obtenidaMACWiFi.substring(obtenidaMACWiFi.length()-70);
-                    obtenidaMACWiFi = obtenidaMACWiFi.substring(1,70);
+                    obtenidaMACWiFi = obtenidaMACWiFi.substring(1,69);
                     obtenidaMACWiFi = obtenidaMACWiFi.replaceAll(" ","");
 
                     String[] parts = obtenidaMACWiFi.split(",");
@@ -572,7 +572,8 @@ public class BluetoothActivity extends AppCompatActivity {
             ble.write(Constants.SERVICE_UUID, Constants.PASSWORD_CHARACTERISTIC_UUID,pass);
             Log.i("Enviar info Wifi:", "Enviada contraseña");
 //            busquedaEntrada(obtenidaMACWiFi,email);
-            borrarLaCazuela(obtenidaMACWiFi, email);
+            borrarLaCazuela(obtenidaMACWiFiString, email);
+            addCazuelaUsuario(obtenidaMACWiFiString, email);
         }
 
     }
@@ -661,7 +662,7 @@ public class BluetoothActivity extends AppCompatActivity {
         });
     }*/
     //por comprobar func. de la API
-    public void borrarLaCazuela(String mac, String correo){
+    public void borrarLaCazuela(String macB, String correo){
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
@@ -672,7 +673,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         "      \"must\":[\n" +
                         "        {\n" +
                         "          \"match\":{\n" +
-                        "            \"idMac\":\""+ mac +"\"\n" +
+                        "            \"idMac\":\""+ macB +"\"\n" +
                         "          }\n" +
                         "        },\n" +
                         "        {\n" +
@@ -712,7 +713,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
                     Log.d(TAG, "onResponse borrar cazuela: data: " );
 
-                    addCazuelaUsuario(mac, correo);
+                    //addCazuelaUsuario(macB, correo);
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse borrarCaz: " +
                             "NullPointerException: " + e.getMessage() );
@@ -734,14 +735,14 @@ public class BluetoothActivity extends AppCompatActivity {
 
     }
 
-    public void addCazuelaUsuario(String mac, String correo){
+    public void addCazuelaUsuario(String macA, String correo){
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
         try {
             queryJson = "{\n" +
-                    "  \"idMac\":\""+ mac +"\",\n" +
-                    "  \"nombreCazuela\":\""+ mac +"\",\n" +
+                    "  \"idMac\":\""+ macA +"\",\n" +
+                    "  \"nombreCazuela\":\""+ macA +"\",\n" +
                     "  \"correousu\":\""+ correo +"\",\n" +
                     "  \"dueno\":true\n" +
                     "}";

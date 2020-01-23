@@ -148,7 +148,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_exit_to_app_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/alert/ic_warning_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -158,10 +158,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="color" value="6c3838" />
+                            <entry key="color" value="929295" />
                             <entry key="opacityPercent" value="87" />
-                            <entry key="outputName" value="ic_iconosuk" />
+                            <entry key="outputName" value="ic_warning_gris" />
                             <entry key="sourceFile" value="C:\Users\practicas\Pictures\iconosuk.svg" />
                           </map>
                         </option>
