@@ -18,7 +18,7 @@ public class Source {
     private String timestamp;
     @SerializedName("tempsInt")
     @Expose
-    private Integer tempsInt;
+    private Float tempsInt;
     @SerializedName("tempsTapa")
     @Expose
     private Integer tempsTapa;
@@ -39,7 +39,7 @@ public class Source {
      * @param tempsInt
      * @param timestamp
      */
-    public Source(String idMac, String medicionFechaInicio, String medicionFechaFin, String timestamp, Integer tempsInt, Integer tempsTapa) {
+    public Source(String idMac, String medicionFechaInicio, String medicionFechaFin, String timestamp, Float tempsInt, Integer tempsTapa) {
         super();
         this.idMac = idMac;
         this.medicionFechaInicio = medicionFechaInicio;
@@ -111,15 +111,15 @@ public class Source {
         return this;
     }
 
-    public Integer getTempsInt() {
+    public Float getTempsInt() {
         return tempsInt;
     }
 
-    public void setTempsInt(Integer tempsInt) {
+    public void setTempsInt(Float tempsInt) {
         this.tempsInt = tempsInt;
     }
 
-    public Source withTempsInt(Integer tempsInt) {
+    public Source withTempsInt(Float tempsInt) {
         this.tempsInt = tempsInt;
         return this;
     }

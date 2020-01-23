@@ -247,7 +247,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
                         String tradASCII = new String(bytes); //hexChar
                         System.out.println("tradASCII -------> "+ tradASCII);
-                        obtenidaMACWiFiString = obtenidaMACWiFiString + tradASCII;
+                        obtenidaMACWiFiString = obtenidaMACWiFiString + tradASCII.toUpperCase();
                     }
                     System.out.println("============= MAC WiFi en bytes =====> " + obtenidaMACWiFi);
 //

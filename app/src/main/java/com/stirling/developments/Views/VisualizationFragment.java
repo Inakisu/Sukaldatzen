@@ -207,6 +207,7 @@ public class VisualizationFragment extends Fragment
                                 mCazuela.size());
                         goToAppropriateCazuela();
                         actualizarTemperatura(); //para que se actualice al instante de cambiar
+                        tempOlla = 0;
                     }else{
                         Log.i("Swipe IaD: ", "No hay más pantallas hacia ese lado");
                     }
@@ -220,6 +221,8 @@ public class VisualizationFragment extends Fragment
                                 mCazuela.size());
                         goToAppropriateCazuela();
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
+                        tempOlla = 0;
+
                     }else{
                         Log.i("Swipe DaI: ", "No hay más pantallas hacia ese lado");
                     }
@@ -288,7 +291,7 @@ public class VisualizationFragment extends Fragment
     @Override
     public void onResume(){
         super.onResume();
-
+        //obtenerCazuelasUsuario();
     }
     //Encender contador que funciona si 'true' durante X minutos establecidos en var. minutosTemp.
     public void arrancarTimer(){
@@ -466,8 +469,10 @@ public class VisualizationFragment extends Fragment
                     //setup the list of posts
 
                     //Actualizamos temperatura con la última obtenida
-                    String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
-                    tvTemperature.setText(ta + "ºC");
+                    //String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
+                    Float ta = hits.getHits().get(0).getSource().getTempsInt();
+                    int taI = Math.round(ta);
+                    tvTemperature.setText(taI + "ºC");
                     Log.i("Tª: ", "Temperatura actualizada: "+ ta + " ºC");
                     Log.i("Tª: ", "Temperatura tapa: " + hits.getHits().get(0).getSource()
                             .getTempsTapa().toString()+ " ºC");
@@ -478,7 +483,7 @@ public class VisualizationFragment extends Fragment
 
                     //Introducimos esta última temperatura en la segunda serie
                     String fjroi = hits.getHits().get(0).getSource().getTimestamp();
-                    int taInt = hits.getHits().get(0).getSource().getTempsInt();
+                    Float taInt = hits.getHits().get(0).getSource().getTempsInt();
                     tempOlla = taInt;
                     lastX++;//sustituir por hora?
                     serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
@@ -651,6 +656,7 @@ public class VisualizationFragment extends Fragment
     }
 
     private void obtenerCazuelasUsuario(){
+        Log.i("obtenerCazuelasUsuario: ", "ha entrado <=======");
         mCazuela = new ArrayList<Cazuela>();
 
         HashMap<String, String> headerMap = new HashMap<String, String>();
