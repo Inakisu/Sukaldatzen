@@ -3,7 +3,8 @@
     <color name="colorPrimary">#8BC34A</color>
     <color name="colorPrimaryDark">#505E40</color>
     <color name="colorAccent">#D39435</color>
-    <color name="tempVerde">#1E88E5</color>
+    <color name="tempVerde">#43A047</color>
+    <color name="tempAzul">#1E88E5</color>
     <color name="tempAmarillo">#FBC02D</color>
     <color name="tempRojo">#D50000</color>
 </resources>

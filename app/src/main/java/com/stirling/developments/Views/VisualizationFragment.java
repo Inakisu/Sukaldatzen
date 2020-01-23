@@ -347,31 +347,34 @@ public class VisualizationFragment extends Fragment
     //Cambio de color del círculo de temperatura
     public void actualizarColor(){
 
-        int temp1 = getResources().getInteger(R.integer.tempVerdeMenorQue);
-        int temp2 = getResources().getInteger(R.integer.tempAmarillaMayVerMenQue);
-        int temp3 = getResources().getInteger(R.integer.tempRojaMayorQue);
-        if(tempOlla <= temp1){
+        int temp1 = 40;
+        int temp2 = 100;
+        int temp3 = 120;
+        int temp4 = 140;
+        if(tempOlla <= temp1){ //0-40
+            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
+            imgCandado.setImageResource(R.drawable.ic_lock_open);
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempAzul));
+            tvTemperature.clearAnimation();
+        }else if(temp1 < tempOlla && tempOlla < temp2){//40-100
             imgAlerta.setImageResource(R.drawable.ic_warning_gris);
             imgCandado.setImageResource(R.drawable.ic_lock_open);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempVerde));
             tvTemperature.clearAnimation();
-        }else if(temp1 < tempOlla && tempOlla <= temp2){
-            imgAlerta.setImageResource(R.drawable.ic_warning_gris);
-            imgCandado.setImageResource(R.drawable.ic_lock_open);
-            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempAmarillo));
-            tvTemperature.clearAnimation();
-        }else if(temp2 < tempOlla && tempOlla <= temp3){
+        }else if(temp2 <= tempOlla && tempOlla < temp3){//100-120
             imgAlerta.setImageResource(R.drawable.ic_warning_gris);
             imgCandado.setImageResource(R.drawable.ic_lock_close);
-            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempRojo));
+            tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempAmarillo));
             tvTemperature.clearAnimation();
-        }else if(tempOlla > temp3){
+        }else if(tempOlla >= temp3 && tempOlla < temp4) {//120-140
             imgAlerta.setImageResource(R.drawable.ic_warning);
             imgCandado.setImageResource(R.drawable.ic_lock_close);
             tvTemperature.setBackgroundColor(getContext().getColor(R.color.tempRojo));
             //hacer que parpadee en rojo
             tvTemperature.startAnimation(animBlink);
             imgAlerta.setVisibility(View.VISIBLE);
+        }else if(tempOlla >= temp4){//>140
+
         }else{
             imgAlerta.setImageResource(R.drawable.ic_warning_gris);
             imgCandado.setImageResource(R.drawable.ic_lock_open);
