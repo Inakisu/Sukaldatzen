@@ -141,7 +141,8 @@ public class BluetoothActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getBaseContext().getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        preferences = getBaseContext().getSharedPreferences("preferencias",
+                Context.MODE_PRIVATE);
         setContentView(R.layout.activity_bluetooth);
         relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
 
@@ -184,11 +185,9 @@ public class BluetoothActivity extends AppCompatActivity {
         hacerVisible();
 
         bleCallback = new BleCallback(){
-
             @Override
             public void onBleConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 super.onBleConnectionStateChange(gatt, status, newState);
-
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     runOnUiThread(() -> Toast.makeText(BluetoothActivity.this,
                             "Connected to GATT server.", Toast.LENGTH_SHORT).show());
@@ -244,7 +243,6 @@ public class BluetoothActivity extends AppCompatActivity {
                         } catch (DecoderException e) {
                             e.printStackTrace();
                         }
-
                         String tradASCII = new String(bytes); //hexChar
                         System.out.println("tradASCII -------> "+ tradASCII);
                         obtenidaMACWiFiString = obtenidaMACWiFiString + tradASCII.toUpperCase();
@@ -445,6 +443,12 @@ public class BluetoothActivity extends AppCompatActivity {
         ble.disconnect();
     }
 
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK, null);
+        finish();
+    }
+
     private void checkIfBleIsConnected(BluetoothLEHelper bluetoothLEHelper){
         if(bluetoothLEHelper.isConnected()){
             Log.i("isConnected","---->El dispositivo está conectado<----");
@@ -575,92 +579,9 @@ public class BluetoothActivity extends AppCompatActivity {
             borrarLaCazuela(obtenidaMACWiFiString, email);
             addCazuelaUsuario(obtenidaMACWiFiString, email);
         }
-
     }
 
-    //Buscamos en cazuelas_sukaldatzen alguna entrada con MAC y correo para eliminarla.
-    //Este método se ejecuta al sincronizar por Bluetooth una olla, para evitar duplicidades
-    /*public void busquedaEntrada(String mac, String correo){
 
-        HashMap<String, String> headerMap = new HashMap<String, String>();
-        headerMap.put("Authorization", Credentials.basic("android",
-                mElasticSearchPassword));
-        String searchString = "";
-        try {
-            queryJson = "{\n" +
-                        "  \"query\":{\n" +
-                        "    \"bool\":{\n" +
-                        "      \"must\":[\n" +
-                        "        {\n" +
-                        "          \"match\":{\n" +
-                        "            \"idMac\":\""+ mac +"\"\n" +
-                        "          }\n" +
-                        "        },\n" +
-                        "        {\n" +
-                        "          \"match\":{\n" +
-                        "            \"correousu\":\""+ correo +"\"\n" +
-                        "          }\n" +
-                        "        }\n" +
-                        "      ]\n" +
-                        "    }\n" +
-                        "  }\n" +
-                        "}";
-            jsonObject = new JSONObject(queryJson);
-        }catch (JSONException jerr){
-            Log.d("Error: ", jerr.toString());
-        }
-        //Creamos el body con el JSON
-        RequestBody body = RequestBody.create(okhttp3.MediaType
-                .parse("application/json; charset=utf-8"),(jsonObject.toString()));
-        Call<HitsObjectC> call = searchAPI.searchCazuela(headerMap, body);
-
-        call.enqueue(new Callback<HitsObjectC>() {
-            @Override
-            public void onResponse(Call<HitsObjectC> call, Response<HitsObjectC> response) {
-                HitsListC hitsList = new HitsListC();
-                String jsonResponse = "";
-                try{
-                    Log.d(TAG, "onResponse: server response: " + response.toString());
-
-                    if(response.isSuccessful()){
-                        hitsList = response.body().getHits();
-                        Log.d(TAG, " -----------onResponse: la response: "+response.body()
-                                .toString());
-                    }else{
-                        jsonResponse = response.errorBody().string(); //error response body
-                    }
-
-                    Log.d(TAG, "onResponse: hits: " + hitsList);
-
-                    for(int i = 0; i < hitsList.getCazuelaIndex().size(); i++){
-                        Log.d(TAG, "onResponse: data: " + hitsList.getCazuelaIndex().get(i)
-                                .getCazuela().toString());
-                    }
-                    //Si existe hay que llamar a un método que borre y luego otro que introduzca
-                    if (hitsList.getCazuelaIndex().size() == 0){
-                        //habría que borrar la entrada que se ha encontrado, no necesitamos esta
-                        //llamada y otra para borra la entrada
-                        //prueba de momento
-                        borrarLaCazuela(mac, correo);
-                    }
-
-                }catch (NullPointerException e){
-                    Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
-                }
-                catch (IndexOutOfBoundsException e){
-                    Log.e(TAG, "onResponse: IndexOutOfBoundsException: " + e.getMessage() );
-                }
-                catch (IOException e){
-                    Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HitsObjectC> call, Throwable t) {
-
-            }
-        });
-    }*/
     //por comprobar func. de la API
     public void borrarLaCazuela(String macB, String correo){
         HashMap<String, String> headerMap = new HashMap<String, String>();
@@ -760,7 +681,8 @@ public class BluetoothActivity extends AppCompatActivity {
             public void onResponse(Call<RespuestaU> call, Response<RespuestaU> response) {
                 String jsonResponse = "";
                 try{
-                    Log.d(TAG, "onResponse addcazuela: server response: " + response.toString());
+                    Log.d(TAG, "onResponse addcazuela: server response: " +
+                            response.toString());
                     //Si la respuesta es satisfactoria
                     if(response.isSuccessful()){
                         Log.d(TAG, "repsonseBody addcazuela: "+ response.body().toString());
@@ -775,7 +697,8 @@ public class BluetoothActivity extends AppCompatActivity {
                     Log.e(TAG, "onResponse addcazuela: NullPointerException: " + e.getMessage() );
                 }
                 catch (IndexOutOfBoundsException e){
-                    Log.e(TAG, "onResponse addcazuela: IndexOutOfBoundsException: " + e.getMessage() );
+                    Log.e(TAG, "onResponse addcazuela: IndexOutOfBoundsException: " +
+                            e.getMessage() );
                 }
                 catch (IOException e){
                     Log.e(TAG, "onResponse addcazuela: IOException: " + e.getMessage() );
@@ -789,63 +712,6 @@ public class BluetoothActivity extends AppCompatActivity {
         });
     }
 
-    /*private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                //Limpiamos la lista de dispositivos encontrados
-                arListEncont.clear();
-                //Comienza la búsqueda, mostrar diálogo de progreso
-                progressBar2.setVisibility(View.VISIBLE);
-                botonBuscar.setVisibility(View.GONE);
-                Log.i("BT", ">----->BT: Comienza búsqueda <-----<");
-
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                //La búsqueda finaliza, cerramos diálogo de progreso
-                progressBar2.setVisibility(View.GONE);
-                botonBuscar.setVisibility(View.VISIBLE);
-                //En caso de no encontrar dispositivos que se muestre el siguiente mensaje
-                if (arrayAdapterDispEncontrados.getCount() == 0) {
-                    String noDevices = "Ningún dispositivo encontrado";
-                    arListEncont.add(noDevices);
-                }
-                Log.i("BT", ">----->BT: Finaliza la búsqueda <-----<");
-
-            } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Boolean repetido = false;
-                Boolean esNull = false;
-                //Dispositivo bluetooth encontrado
-                BluetoothDevice device = (BluetoothDevice) intent
-                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                //Obtenemos el nombre del dispositivo
-                String deviceName = device.getName();
-                //Obtenemos dirección MAC
-                String deviceHWAddress = device.getAddress();
-                Log.i("BT", ">----->----->BT: " + deviceName
-                        + "\n" + deviceHWAddress);
-
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    if (device.getName() == null) {
-                        //Si es null nada
-                    } else {//Si no, comprobar que no esté repetido
-                        for (String x : arListEncont) {
-                            if (x.equals(device.getName() + "\n" + device.getAddress())) {
-                                repetido = true;
-                                break;//Si está repetido paramos el for
-                            }
-                        }
-                        if (!repetido && !esNull) { //Si no está repetido, añadimos a la lista para mostrar
-                            arListEncont.add(deviceName + "\n" + deviceHWAddress);
-                            arrayAdapterDispEncontrados.notifyDataSetChanged();
-                        }
-                    }
-                }
-
-
-            }
-        }
-    };*/
 
     //En este método se solicitan los permisos necesarios para utilizar
     // funcionalidades Bluetooth

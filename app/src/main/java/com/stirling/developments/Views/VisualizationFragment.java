@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -106,6 +107,8 @@ public class VisualizationFragment extends Fragment
 
     private boolean seguir = false;
     private boolean rCorriendo = false;
+    private boolean primeraVez = true;
+    private boolean parar = false;
     private int minutosTemp = 0;
     private long millisCounter = 0;
     private float mil = 0;
@@ -156,25 +159,29 @@ public class VisualizationFragment extends Fragment
         //Inicializamos la API de elasticsearch
         inicializarAPI();
 
+        //Reiniciamos variables
+        currentCazuela = null;
+        currentPage = 0;
+        macCurrentCazuela = null;
+
         //Obtenemos el correo electrónico del usuario
         mAuth = FirebaseAuth.getInstance();
         elCorreo = mAuth.getCurrentUser().getEmail();
 
+        //Primera obtención de datos
         obtenerCazuelasUsuario();
-        listarCazuelasUI(); //esto va a sobrar, ya verás, te lo digo yo
+        primeraVez = false;
         //enPrueba();
-        actualizarTemperatura();
+        //Inicializamos contador de cazuelas si las hay
+        if(mCazuela.size() > 0){
+            tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " + mCazuela.size());
+            actualizarTemperatura();
+        }
 
         //Inicializamos el gráfico
         iniciarGrafico(graphView);
         //..y lo ocultamos
         graphView.setVisibility(View.GONE);
-
-        //Inicializamos contador de cazuelas si las hay
-        if(mCazuela.size() > 0){
-            tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
-                    mCazuela.size());
-        }
 
         //setteamos animación de parpadeo al indicador de temperatura
         animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
@@ -185,17 +192,19 @@ public class VisualizationFragment extends Fragment
         new Runnable() {
             @Override
             public void run() {
-                handler.postDelayed(this, 2 * 1000); // every 2 seconds
-                //lo que queremos que haga cada dos segundos
-                comprobarAlarmaT(alTAct);
-                actualizarTemperatura();
-                actualizarColor();
+                if(!parar){
+                    handler.postDelayed(this, 2 * 1000); // every 2 seconds
+                    //lo que queremos que haga cada dos segundos
+                    comprobarAlarmaT(alTAct);
+                    actualizarTemperatura();
+                    actualizarColor();
 //                actualizarGrafico();
+                }
             }
         }.run();
 
         //Creamos el handler para detectar swipes
-        new SwipeDetector(view).setOnSwipeListener(new SwipeDetector.onSwipeEvent() {
+        new SwipeDetector(view).setOnSwipeListener(new SwipeDetector.onSwipeEvent(){
             @Override
             public void SwipeEventDetected(View v, SwipeDetector.SwipeTypeEnum swipeType) {
                 if(swipeType==SwipeDetector.SwipeTypeEnum.LEFT_TO_RIGHT){
@@ -222,7 +231,6 @@ public class VisualizationFragment extends Fragment
                         goToAppropriateCazuela();
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
                         tempOlla = 0;
-
                     }else{
                         Log.i("Swipe DaI: ", "No hay más pantallas hacia ese lado");
                     }
@@ -231,8 +239,7 @@ public class VisualizationFragment extends Fragment
 
         });
         //Boton poner alamra temperatura
-        bSetTemperatureAlarm.setOnClickListener(new View.OnClickListener()
-        {
+        bSetTemperatureAlarm.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v)
             {
@@ -248,8 +255,7 @@ public class VisualizationFragment extends Fragment
             }
         });
         //Boton poner temporizador
-        bSetTimeAlarm.setOnClickListener(new View.OnClickListener()
-        {
+        bSetTimeAlarm.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v)
             {
@@ -270,11 +276,10 @@ public class VisualizationFragment extends Fragment
                 }
                 timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
                         seekBarTime.getProgress() + "min."));
-
             }
         });
         //Controlamos si mostrar u ocultar el gráfico dependiendo del estado del switch
-        switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             public void onCheckedChanged(CompoundButton buttonView, boolean oncendido) {
                 if(oncendido)
                     graphView.setVisibility(View.VISIBLE);
@@ -282,17 +287,28 @@ public class VisualizationFragment extends Fragment
                     graphView.setVisibility(View.GONE);
             }
         });
-
     }
+
     @Override
     public void onPause() {
         super.onPause();
+//        parar = true;
+//        mCazuela.clear();
+        tvTemperature.setText("-- ºC");
+//        actualizarColor();
+        primeraVez = true;
     }
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        //obtenerCazuelasUsuario();
+//        FragmentTransaction ft = getFragmentManager().beginTransaction();
+//        ft.detach(this).attach(this).commit();
+        if(primeraVez){
+            obtenerCazuelasUsuario();
+        }
+        parar = false;
     }
+
     //Encender contador que funciona si 'true' durante X minutos establecidos en var. minutosTemp.
     public void arrancarTimer(){
         millisCounter = minutosTemp*60*1000; //Trabajamos con millisegundos
@@ -346,7 +362,6 @@ public class VisualizationFragment extends Fragment
 
     //Cambio de color del círculo de temperatura
     public void actualizarColor(){
-
         int temp1 = 40;
         int temp2 = 100;
         int temp3 = 120;
@@ -374,7 +389,6 @@ public class VisualizationFragment extends Fragment
             tvTemperature.startAnimation(animBlink);
             imgAlerta.setVisibility(View.VISIBLE);
         }else if(tempOlla >= temp4){//>140
-
         }else{
             imgAlerta.setImageResource(R.drawable.ic_warning_gris);
             imgCandado.setImageResource(R.drawable.ic_lock_open);
@@ -391,7 +405,6 @@ public class VisualizationFragment extends Fragment
         editor.putString(key, json);
         editor.apply();
     }
-
 
     private void actualizarTemperatura() {
         String macC = macCurrentCazuela;
@@ -643,8 +656,7 @@ public class VisualizationFragment extends Fragment
         lastX=0;
     }
 
-    private void goToAppropriateCazuela()
-    {
+    private void goToAppropriateCazuela(){
         macCurrentCazuela = currentCazuela.getIdMac();
         tvMAC.setText(macCurrentCazuela);
         tvStatus.setText(currentCazuela.getNombreCazuela());
@@ -739,13 +751,4 @@ public class VisualizationFragment extends Fragment
             }
         });
     }
-
-    public void listarCazuelasUI(){
-        for(Cazuela caz : mCazuela){
-            //Añadimos una pantalla
-        }
-    }
-
-
-
 }

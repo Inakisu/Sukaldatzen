@@ -46,10 +46,11 @@ public class MainUserActivity extends AppCompatActivity {
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.toolbar) Toolbar toolbar;
 
+    public Fragment visuFrag;
+
     private Menu menu;
     private SubMenu modulos;
     private String correoUsu = "Correo del usuario";
-
     private FirebaseAuth auth;
     ArrayList<Cazuela> listaModulos = new ArrayList<Cazuela>();
 
@@ -92,7 +93,7 @@ public class MainUserActivity extends AppCompatActivity {
                         //Nos movemos a activity de sincr. bluetooth
                         Intent btIntent = new Intent (MainUserActivity.this,
                                 BluetoothActivity.class);
-                        startActivity(btIntent);
+                        startActivityForResult(btIntent, 1);
                         break;
 
                     case R.id.nav_settings:
@@ -145,10 +146,12 @@ public class MainUserActivity extends AppCompatActivity {
             }
         });
 
-        openNewFragment(new VisualizationFragment(), "VisualizationFragment",
-                null, false);
+        Fragment visuFrag = new VisualizationFragment();
+        openNewFragment(visuFrag, "VisualizationFragment",null,
+                false);
         menu = navigationView.getMenu();
         modulos = menu.addSubMenu("Módulos");
+
 
     }
     @Override
@@ -158,7 +161,18 @@ public class MainUserActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        actualizarDrawer();
+//        actualizarDrawer();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK){
+//            Intent refresh = new Intent(this, MainUserActivity.class);
+//            startActivity(refresh);
+//            this.finish();
+            actualizarDrawer();
+        }
     }
 
 

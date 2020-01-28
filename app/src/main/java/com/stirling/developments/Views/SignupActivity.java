@@ -228,8 +228,6 @@ public class SignupActivity extends AppCompatActivity {
     private void obtenerCoords() {
         String serviceString = Context.LOCATION_SERVICE;
         locationManager = (LocationManager) getSystemService(serviceString);
-
-
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED &&
@@ -279,7 +277,6 @@ public class SignupActivity extends AppCompatActivity {
                         if (location != null) {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
-
                             //introducimos los valores en el string que se enviará junto al
                             //al resto de datos del usuario en el registro.
                             coordsGPS = latitude + "," + longitude;
@@ -307,7 +304,6 @@ public class SignupActivity extends AppCompatActivity {
                 return ;
             }
         }
-
         obtenerCoords();
     }
     @Override
