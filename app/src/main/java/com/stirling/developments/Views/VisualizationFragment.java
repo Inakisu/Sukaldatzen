@@ -83,8 +83,8 @@ public class VisualizationFragment extends Fragment
     private ArrayList<Cazuela> cazuelas;
     private Cazuela currentCazuela;
     private String macCurrentCazuela;
-    private String mIndice = "";
-    private String mAccion = "";
+    private String tempActual = "";
+    private String tempAnterior = "";
     private String mElasticSearchPassword = Constants.elasticPassword;
     private ArrayList<Usuario> mUsuario; //Lista donde se guardan los términos que buscaremos //O las resp.
     private ArrayList<Cazuela> mCazuela; // Lista donde se almacenarán las respuestas de la query de las cazuelas
@@ -139,7 +139,6 @@ public class VisualizationFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         currentPage = 0;
         currentCazuela = new Cazuela();
         return inflater.inflate(R.layout.visualization_fragment, container, false);
@@ -178,15 +177,11 @@ public class VisualizationFragment extends Fragment
             actualizarTemperatura();
         }
 
-        //Inicializamos el gráfico
-        iniciarGrafico(graphView);
-        //..y lo ocultamos
-        graphView.setVisibility(View.GONE);
-
         //setteamos animación de parpadeo al indicador de temperatura
         animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
                 R.anim.blink);
 
+        //Establecemos proceso que cada dos segundos actualizará la temperatura y el color
         final Handler handler = new Handler();
         /* your code here */
         new Runnable() {
@@ -203,6 +198,11 @@ public class VisualizationFragment extends Fragment
             }
         }.run();
 
+        //Inicializamos el gráfico
+        iniciarGrafico(graphView);
+        //..y lo ocultamos
+        graphView.setVisibility(View.GONE);
+
         //Creamos el handler para detectar swipes
         new SwipeDetector(view).setOnSwipeListener(new SwipeDetector.onSwipeEvent(){
             @Override
@@ -211,10 +211,24 @@ public class VisualizationFragment extends Fragment
                     if(currentPage > 0){
                         currentPage--;
                         currentCazuela = mCazuela.get(currentPage); //cazuelas
-                        tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz anterior
+                        tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz.
+                        // anterior
                         tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
                                 mCazuela.size());
                         goToAppropriateCazuela();
+//                        lastX = 0;
+                        graphView.removeAllSeries();
+                        primerasTemps();
+                        //Inicializamos el gráfico
+                        iniciarGrafico(graphView);
+                        switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+                            public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
+                                if(ONcendido)
+                                    graphView.setVisibility(View.VISIBLE);
+                                else
+                                    graphView.setVisibility(View.GONE);
+                            }
+                        });
                         actualizarTemperatura(); //para que se actualice al instante de cambiar
                         tempOlla = 0;
                     }else{
@@ -229,6 +243,19 @@ public class VisualizationFragment extends Fragment
                         tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
                                 mCazuela.size());
                         goToAppropriateCazuela();
+//                        lastX = 0;
+                        primerasTemps(); //obtenemos últimos valores almacenados en la BD
+                        graphView.removeAllSeries();
+                        //Inicializamos el gráfico
+                        iniciarGrafico(graphView);
+                        switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+                            public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
+                                if(ONcendido)
+                                    graphView.setVisibility(View.VISIBLE);
+                                else
+                                    graphView.setVisibility(View.GONE);
+                            }
+                        });
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
                         tempOlla = 0;
                     }else{
@@ -280,8 +307,8 @@ public class VisualizationFragment extends Fragment
         });
         //Controlamos si mostrar u ocultar el gráfico dependiendo del estado del switch
         switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            public void onCheckedChanged(CompoundButton buttonView, boolean oncendido) {
-                if(oncendido)
+            public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
+                if(ONcendido)
                     graphView.setVisibility(View.VISIBLE);
                 else
                     graphView.setVisibility(View.GONE);
@@ -482,7 +509,6 @@ public class VisualizationFragment extends Fragment
                     }
 
                     Log.d(TAG, "onResponse: size: " + mMedicion.size());
-                    //setup the list of posts
 
                     //Actualizamos temperatura con la última obtenida
                     //String ta = hits.getHits().get(0).getSource().getTempsInt().toString();
@@ -498,11 +524,14 @@ public class VisualizationFragment extends Fragment
                     tvMAC.setText(" " + mac + " ");
 
                     //Introducimos esta última temperatura en la segunda serie
-                    String fjroi = hits.getHits().get(0).getSource().getTimestamp();
-                    Float taInt = hits.getHits().get(0).getSource().getTempsInt();
-                    tempOlla = taInt;
-                    lastX++;//sustituir por hora?
-                    serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
+                    tempActual = hits.getHits().get(0).getSource().getTimestamp();
+                    if(!tempActual.equals(tempAnterior)){
+                        Float taInt = hits.getHits().get(0).getSource().getTempsInt();
+                        tempOlla = taInt;
+                        lastX++;//sustituir por hora?
+                        serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
+                    }
+                    tempAnterior = tempActual;
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
@@ -545,7 +574,7 @@ public class VisualizationFragment extends Fragment
                     "  \"aggs\": {\n" +
                     "    \"myAgg\": {\n" +
                     "      \"top_hits\": {\n" +
-                    "        \"size\": 500,\n" +
+                    "        \"size\": 99,\n" +
                     "        \"sort\": [\n" +
                     "          {\n" +
                     "            \"timestamp\":{\n" +
@@ -652,8 +681,6 @@ public class VisualizationFragment extends Fragment
         serie2.setTitle("Temperaturas en directo");
         serie2.setAnimated(true);
         graphView.addSeries(serie2);
-
-        lastX=0;
     }
 
     private void goToAppropriateCazuela(){
