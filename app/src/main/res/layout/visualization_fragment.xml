@@ -144,8 +144,11 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_weight="9"
+                        android:scrollbarSize="4dp"
+                        android:soundEffectsEnabled="true"
                         app:dsb_allowTrackClickToDrag="false"
-                        app:dsb_max="80"
+                        app:dsb_indicatorElevation="20dp"
+                        app:dsb_max="120"
                         app:dsb_min="0" />
                 </LinearLayout>
 

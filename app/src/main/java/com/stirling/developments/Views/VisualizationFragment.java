@@ -181,23 +181,6 @@ public class VisualizationFragment extends Fragment
         animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
                 R.anim.blink);
 
-        //Establecemos proceso que cada dos segundos actualizará la temperatura y el color
-        final Handler handler = new Handler();
-        /* your code here */
-        new Runnable() {
-            @Override
-            public void run() {
-                if(!parar){
-                    handler.postDelayed(this, 2 * 1000); // every 2 seconds
-                    //lo que queremos que haga cada dos segundos
-                    comprobarAlarmaT(alTAct);
-                    actualizarTemperatura();
-                    actualizarColor();
-//                actualizarGrafico();
-                }
-            }
-        }.run();
-
         //Inicializamos el gráfico
         iniciarGrafico(graphView);
         //..y lo ocultamos
@@ -270,7 +253,7 @@ public class VisualizationFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                if(bSetTemperatureAlarm.getText().equals("Activar")){ //Activar alarma
+                if(bSetTemperatureAlarm.getText().toString().equals("Activar")){ //Activar alarma
                     temperatureThreshold.setText(Html.fromHtml("<b>Temperatura límite: </b>" +
                             seekBarTemp.getProgress() + "ºC"));
                     alTAct=true;
@@ -314,6 +297,22 @@ public class VisualizationFragment extends Fragment
                     graphView.setVisibility(View.GONE);
             }
         });
+        //Establecemos proceso que cada dos segundos actualizará la temperatura y el color
+        final Handler handler = new Handler();
+        /* your code here */
+        new Runnable() {
+            @Override
+            public void run() {
+                if(!parar){
+                    handler.postDelayed(this, 2 * 1000); // every 2 seconds
+                    //lo que queremos que haga cada dos segundos
+                    comprobarAlarmaT(alTAct);
+                    actualizarTemperatura();
+                    actualizarColor();
+//                actualizarGrafico();
+                }
+            }
+        }.run();
     }
 
     @Override
@@ -349,6 +348,7 @@ public class VisualizationFragment extends Fragment
                         "Temperatura tupper", "Temperatura consigna alcanzada");
                 bSetTemperatureAlarm.setText("Activar");
                 alTAct =false;
+                seekBarTemp.setProgress(0);
             }
         }
     }
@@ -503,8 +503,8 @@ public class VisualizationFragment extends Fragment
                     Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
 
                     for(int i = 0; i < hits.getHits().size(); i++){
-                        Log.d(TAG, "onResponse: data: " + hits.getHits()
-                                .get(i).getSource().toString());
+                        Log.d(TAG, "onResponse: data: " + hits.getHits().get(i)
+                                .getSource().toString());
                         mMedicion.add(hits.getHits().get(i).getSource());
                     }
 
@@ -529,7 +529,8 @@ public class VisualizationFragment extends Fragment
                         Float taInt = hits.getHits().get(0).getSource().getTempsInt();
                         tempOlla = taInt;
                         lastX++;//sustituir por hora?
-                        serie2.appendData(new DataPoint(lastX ,taInt),true,1000);
+                        serie2.appendData(new DataPoint(lastX ,taInt)
+                                ,true,1000);
                     }
                     tempAnterior = tempActual;
 
@@ -642,7 +643,7 @@ public class VisualizationFragment extends Fragment
 
                     //Introducimos las temperaturas anteriores en la primera serie
                     for (int i = 0; i <= mMedicion.size() ; i++){
-                        lastX++;
+                        lastX++; //valor X coords.
                         //Añadir el array con las últimas X mediciones
                         serie1.appendData(new DataPoint(lastX, tempOlla),
                                 true, 500);
@@ -696,11 +697,9 @@ public class VisualizationFragment extends Fragment
                 .build();
         searchAPI = retrofit.create(ElasticSearchAPI.class);
     }
-
     private void obtenerCazuelasUsuario(){
         Log.i("obtenerCazuelasUsuario: ", "ha entrado <=======");
         mCazuela = new ArrayList<Cazuela>();
-
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
@@ -726,7 +725,6 @@ public class VisualizationFragment extends Fragment
         RequestBody body = RequestBody.create(okhttp3.MediaType
                 .parse("application/json; charset=utf-8"),(jsonObject.toString()));
         Call<HitsObjectC> call = searchAPI.searchCazuela(headerMap, body);
-
         call.enqueue(new Callback<HitsObjectC>() {
             @Override
             public void onResponse(Call<HitsObjectC> call, Response<HitsObjectC> response) {
@@ -734,7 +732,6 @@ public class VisualizationFragment extends Fragment
                 String jsonResponse = "";
                 try{
                     Log.d(TAG, "onResponse: server response: " + response.toString());
-
                     if(response.isSuccessful()){
                         hitsList = response.body().getHits();
                         Log.d(TAG, " -----------onResponse: la response: "+response.body()
