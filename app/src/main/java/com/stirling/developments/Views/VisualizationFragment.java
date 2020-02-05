@@ -261,6 +261,7 @@ public class VisualizationFragment extends Fragment
                 }else{ //Desactivar alarma
                     temperatureThreshold.setText(Html.fromHtml("<b> </b>"));
                     bSetTemperatureAlarm.setText("Activar");
+                    alTAct =false;
                 }
             }
         });
@@ -283,6 +284,7 @@ public class VisualizationFragment extends Fragment
                     bSetTimeAlarm.setText("Activar");
                     seguir = false;
                     timeAlarm.setText(Html.fromHtml(" "));
+                    seekBarTime.setProgress(0);
                 }
                 timeAlarm.setText(Html.fromHtml("<b>Tiempo restante:</b> " +
                         seekBarTime.getProgress() + "min."));
@@ -309,7 +311,7 @@ public class VisualizationFragment extends Fragment
                     comprobarAlarmaT(alTAct);
                     actualizarTemperatura();
                     actualizarColor();
-//                actualizarGrafico();
+//                    actualizarGrafico();
                 }
             }
         }.run();
@@ -345,10 +347,11 @@ public class VisualizationFragment extends Fragment
         if(activada){
             if(tempOlla>=seekBarTemp.getProgress()){
                 Notifications.show(getActivity(), VisualizationFragment.class,
-                        "Temperatura tupper", "Temperatura consigna alcanzada");
+                        "Alarma olla inteligente", "Temperatura de consigna alcanzada");
                 bSetTemperatureAlarm.setText("Activar");
                 alTAct =false;
                 seekBarTemp.setProgress(0);
+                temperatureThreshold.setText(Html.fromHtml("" ));
             }
         }
     }
@@ -366,7 +369,7 @@ public class VisualizationFragment extends Fragment
                     "Finalizado"));
             seekBarTime.setMax(120);
             Notifications.show(getActivity(), VisualizationFragment.class,
-                    "Temporizador olla", "El temporizador ha finalizado.");
+                    "Alarma olla inteligente", "El temporizador ha finalizado.");
             bSetTimeAlarm.setText("Activar");
         }
 
@@ -375,6 +378,7 @@ public class VisualizationFragment extends Fragment
             if(!seguir){
                 this.cancel();
                 seekBarTime.setMax(120);
+                seekBarTime.setProgress(0);
             }
             millisCounter = millisCounter - 1000;
             mil = millisCounter /60 / 1000;
@@ -384,6 +388,10 @@ public class VisualizationFragment extends Fragment
             long timeRemaining = millisUntilFinished;
             seekBarTime.setProgress((int) (timeRemaining));
             //Log.i(TAG, "Time tick: " + millisUntilFinished);
+            if(!seguir){
+                seekBarTime.setMax(120);
+                seekBarTime.setProgress(0);
+            }
         }
     }
 
