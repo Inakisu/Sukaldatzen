@@ -107,7 +107,7 @@ public class SignupActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         comprobarPermisos();
-//        obtenerCoords();
+        obtenerCoords();
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +184,8 @@ public class SignupActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         Toast.makeText(SignupActivity.this,
-                                                "createUserWithEmail:onComplete:" + task.isSuccessful(),
+                                                "createUserWithEmail:onComplete:" +
+                                                        task.isSuccessful(),
                                                 Toast.LENGTH_SHORT).show();
                                         progressBar.setVisibility(View.GONE);
                                         // If sign in fails, display a message to the user. If sign in succeeds
@@ -192,7 +193,8 @@ public class SignupActivity extends AppCompatActivity {
                                         // signed in user can be handled in the listener.
                                         if (!task.isSuccessful()) { //En caso de error o correo existente
                                             Toast.makeText(SignupActivity.this,
-                                                    "Authentication" + " failed." + task.getException(),
+                                                    "Authentication" + " failed." +
+                                                            task.getException(),
                                                     Toast.LENGTH_SHORT).show();
                                             Log.i("Response", "Failed to create user: "
                                                     + task.getException().getMessage());
@@ -304,7 +306,6 @@ public class SignupActivity extends AppCompatActivity {
                 return ;
             }
         }
-        obtenerCoords();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

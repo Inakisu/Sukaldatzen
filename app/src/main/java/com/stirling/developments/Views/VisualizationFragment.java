@@ -73,7 +73,7 @@ import static android.content.ContentValues.TAG;
 
 public class VisualizationFragment extends Fragment
 {
-    private static final String BASE_URL = "http://10.128.0.104:9200/";
+    private static final String BASE_URL = "http://10.128.0.104:9200/";//"http://172.20.1.24:9200/"; //
 
     static SharedPreferences sharedPreferences;
 //    private static SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -171,11 +171,6 @@ public class VisualizationFragment extends Fragment
         obtenerCazuelasUsuario();
         primeraVez = false;
         //enPrueba();
-        //Inicializamos contador de cazuelas si las hay
-        if(mCazuela.size() > 0){
-            tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " + mCazuela.size());
-            actualizarTemperatura();
-        }
 
         //setteamos animación de parpadeo al indicador de temperatura
         animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
@@ -299,6 +294,11 @@ public class VisualizationFragment extends Fragment
                     graphView.setVisibility(View.GONE);
             }
         });
+        //Inicializamos contador de cazuelas si las hay
+        if(mCazuela.size() > 0){
+            tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " + mCazuela.size());
+            actualizarTemperatura();
+        }
         //Establecemos proceso que cada dos segundos actualizará la temperatura y el color
         final Handler handler = new Handler();
         /* your code here */
