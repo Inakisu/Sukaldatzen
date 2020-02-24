@@ -73,7 +73,7 @@ import static android.content.ContentValues.TAG;
 
 public class VisualizationFragment extends Fragment
 {
-    private static final String BASE_URL = "http://10.128.0.104:9200/";//"http://172.20.1.24:9200/"; //
+    private static final String BASE_URL = "http://sukaldatzen.ddns.net:9200/";//"http://10.128.0.104:9200/";//"http://172.20.1.24:9200/"; //
 
     static SharedPreferences sharedPreferences;
 //    private static SharedPreferences.Editor editor = sharedPreferences.edit();

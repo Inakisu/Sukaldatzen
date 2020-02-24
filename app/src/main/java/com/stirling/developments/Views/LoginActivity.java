@@ -182,6 +182,10 @@ public class LoginActivity extends AppCompatActivity {
                 startActivityForResult(signInIntent, 101);
 
                 //Obtener correo e información y si falta algo solicitarla para meterlo a BD
+                //Pop-up diciendo "Es necesario que introduzca la siguiente información:" ?
+
+
+
 
             }
         });
@@ -226,6 +230,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        String nombre="", fechaNa="", correo="";
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == 101) {
@@ -234,6 +239,8 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+//                nombre = account.getGivenName();
+//                fechaNa = account.
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);

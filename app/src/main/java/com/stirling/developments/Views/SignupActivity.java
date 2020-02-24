@@ -1,20 +1,17 @@
 package com.stirling.developments.Views;
 
-import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,7 +37,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.HashMap;
 
 import okhttp3.Credentials;
@@ -64,25 +60,15 @@ public class SignupActivity extends AppCompatActivity {
     private JSONObject jsonObject;
     private ElasticSearchAPI searchAPI;
     private Retrofit retrofit;
-    final Calendar calendario = Calendar.getInstance();
 
     //get access to location permission
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     private final Context mContext = this;
-    private Location location;
+    private Location mlocation;
     private double latitude;
     private double longitude;
-    private Boolean act;
-    private Boolean gpsStatus;
-    private Boolean networkStatus;
     private String coordsGPS = "";
-    private LocationManager locationManager;
-    private android.location.LocationListener myLocationListener;
-
-    private static final long tiempoMinimo = 1000 * 60 * 3; //3 minutos
-    private static final long distanciaMinima = 500;
-//    private LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +92,61 @@ public class SignupActivity extends AppCompatActivity {
         inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        comprobarPermisos();
-        obtenerCoords();
+        //-----------------------------
+        final LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+        mlocation = location;
+        latitude = mlocation.getLatitude();
+        longitude = mlocation.getLongitude();
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d("Status Changed", String.valueOf(status));
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d("Provider Enabled", provider);
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d("Provider Disabled", provider);
+            }
+        };
+
+        // Now first make a criteria with your requirements
+        // this is done to save the battery life of the device
+        // there are various other other criteria you can search for..
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(false);
+        criteria.setCostAllowed(true);
+        criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+        criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+
+        // Creamos un location manager
+        final LocationManager locationManager = (LocationManager)getSystemService(
+                Context.LOCATION_SERVICE);
+
+        // Esto evita que esté obteniendo ubicación constantemente en segundo plano
+        final Looper looper = null;
+
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(),android.Manifest.permission.ACCESS_COARSE_LOCATION )
+                != PackageManager.PERMISSION_GRANTED )
+        {
+            ActivityCompat.requestPermissions(getParent(),
+                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
+                    11
+            );
+        }
+        locationManager.requestSingleUpdate(criteria, locationListener, looper);
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,9 +158,6 @@ public class SignupActivity extends AppCompatActivity {
         inputFechaNac.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*new DatePickerDialog(SignupActivity.this, date, calendario
-                        .get(Calendar.YEAR), calendario.get(Calendar.MONTH),
-                        calendario.get(Calendar.DAY_OF_MONTH)).show();*/
                 DatePickerFragmentDialog datePickerFragmentDialog = DatePickerFragmentDialog
                         .newInstance(new DatePickerFragmentDialog.OnDateSetListener() {
                             @Override
@@ -179,8 +215,8 @@ public class SignupActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 //Creamos el usuario en el gestor de cuentas de Firebase
                 auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(SignupActivity.this, new
-                                OnCompleteListener<AuthResult>() {
+                        .addOnCompleteListener(SignupActivity.this,
+                                new OnCompleteListener<AuthResult>() {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         Toast.makeText(SignupActivity.this,
@@ -200,100 +236,24 @@ public class SignupActivity extends AppCompatActivity {
                                                     + task.getException().getMessage());
 
                                         } else {
-                                            //I: Registro correcto --> enviar email verificación
-                           /*         user = auth.getCurrentUser();
-                                    enviarVerif(); //Llamada a método para enviar email verificación*/
-                                    /*if(!user.isEmailVerified()) {//I: revisar este if
-                                        Toast.makeText(SignupActivity.this,
-                                                "Verifique el correo", Toast.LENGTH_SHORT).show();
-                                        auth.getInstance().signOut();
-                                        startActivity(new Intent(SignupActivity.this,
-                                                SignupActivity.class));
-                                       // finish();
-                                    }else{
-                                        startActivity(new Intent(SignupActivity.this,
-                                                MainUserActivity.class));
-                                        finish();
-                                    }*/
+                                            //I: Registro correcto --> enviar email verificación??
+
                                         }
                                     }
                                 });
+                //Obtenemos la ubicación del smartphone
+                coordsGPS = latitude +", " + longitude;
+                Log.i("ubic", "ººººººCoords introducidas en BD:ººººººººº "+ coordsGPS);
                 //Introducimos informacion en nuestra base de datos, no en firebase
                 nuevoUsuario(email, nombre, fecha, coordsGPS);
 
             }
 
         });
+        comprobarPermisos();
     }
 
-    //Método obtención de coordenadas
-    private void obtenerCoords() {
-        String serviceString = Context.LOCATION_SERVICE;
-        locationManager = (LocationManager) getSystemService(serviceString);
-        if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                        PackageManager.PERMISSION_GRANTED) {
-            //No hay permisos, hay que pedirlos
-            Log.e("Location", "No hay permisos de localización.1");
-            System.out.println(" %%%% Return 1 - No permisos localización %%%%");
-//            return;
-//            showSettingsAlert();
-        }
 
-
-        myLocationListener = new android.location.LocationListener() {
-            public void onLocationChanged(Location locationListener) {
-
-                if (gpsHabilitado(SignupActivity.this)) {
-                    if (locationListener != null) {
-                        if (ActivityCompat.checkSelfPermission(SignupActivity.this,
-                                android.Manifest.permission.ACCESS_FINE_LOCATION) !=
-                                PackageManager.PERMISSION_GRANTED &&
-                                ActivityCompat.checkSelfPermission(SignupActivity.this,
-                                        android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                                        PackageManager.PERMISSION_GRANTED) {
-                            Log.e("Location", "No hay permisos de localización.2");
-                            System.out.println(" %%%% Return 2 - No permisos localización %%%%");
-                            return;
-                        }
-
-                        if (locationManager != null) {
-                            location = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-//                              introducimos los valores en el string que se enviará junto al
-                                //resto de datos del usuario en el registro
-                                coordsGPS = latitude + "," + longitude;
-                            }
-                        }
-                    }
-                } else if (internetConectado(SignupActivity.this)) {
-                    if (locationManager != null) {
-                        location = locationManager
-                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                            //introducimos los valores en el string que se enviará junto al
-                            //al resto de datos del usuario en el registro.
-                            coordsGPS = latitude + "," + longitude;
-                        }
-                    }
-                }
-            }
-            public void onProviderDisabled(String provider) {
-            }
-            public void onProviderEnabled(String provider) {
-            }
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-        };
-    }
 
     private void comprobarPermisos() {
         if ( Build.VERSION.SDK_INT >= 23){
@@ -312,68 +272,17 @@ public class SignupActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    obtenerCoords();
+//                    obtenerCoords();
                 } else {
                     // Permission Denied
-                    Toast.makeText( this,"your message" , Toast.LENGTH_SHORT)
+                    Toast.makeText( this,"No hay permiso para utilizar el GPS" ,
+                            Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    //Comprobamos que el gps esté habilitado para poder obtener ubicación
-    public boolean gpsHabilitado(Context mContext) {
-        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    //Comprobamos que haya internet para localización mediante network
-    public static boolean internetConectado(Context ctx) {
-        ConnectivityManager connectivityMgr = (ConnectivityManager) ctx
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo wifi = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo mobile = connectivityMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        //Comprobamos si el WiFi o los datos móviles están disponibles o no. Si alguno de ellos
-        //está disponible o conectado devolverá true, si no, false.
-        if (wifi != null) {
-            if (wifi.isConnected()) {
-                return true;
-            }
-        }
-        if (mobile != null) {
-            if (mobile.isConnected()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //Diálogo solicitando permisos para la utilización de la ubicación.
-    public void showSettingsAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
-        // Título del diálogo
-        alertDialog.setTitle("Opciones GPS");
-        // Mensaje del diálogo
-        alertDialog.setMessage("Es necesario obtener ubicación GPS." +
-                " ¿Desea ir al menú de configuración?");
-        // Si se pulsa ir al menú de ajustes
-        alertDialog.setPositiveButton("Ajustes ", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                mContext.startActivity(intent);
-            }
-        });
-        // Si se pulsa el botón cancelar
-        alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        // Mostrar mensaje de alerta
-        alertDialog.show();
     }
 
     @Override
