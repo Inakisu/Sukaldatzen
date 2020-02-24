@@ -92,7 +92,6 @@ public class SignupActivity extends AppCompatActivity {
         inputFechaNac = (EditText) findViewById(R.id.fechaNacReg);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        //-----------------------------
         final LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -164,13 +163,22 @@ public class SignupActivity extends AppCompatActivity {
                             public void onDateSet(DatePickerFragmentDialog v, int dayOfMonth,
                                                   int monthOfYear, int year) {
                                 if(monthOfYear<9){//Si no hay 0 en meses de 1 cifra la BD rechaza
-                                    inputFechaNac.setText(dayOfMonth + "-0" + (monthOfYear + 1)
-                                            + "-" + year);
-                                }else{
-                                    inputFechaNac.setText(dayOfMonth + "-" + (monthOfYear + 1)
-                                            + "-" + year);
+                                    if(dayOfMonth<=9){//y si también el día es de 1 cifra
+                                        inputFechaNac.setText(year + "-0" +(monthOfYear + 1) +
+                                                "-0" + dayOfMonth);
+                                    }else{
+                                        inputFechaNac.setText(year + "-0" + (monthOfYear + 1)
+                                                + "-" + dayOfMonth);
+                                    }
+                                }else{//Si el mes es de 2 cifras
+                                    if(dayOfMonth<=9){//y además el día es de 1 cifra
+                                        inputFechaNac.setText( year + "-" + (monthOfYear + 1)+
+                                                "-0" + dayOfMonth);
+                                    }else{
+                                        inputFechaNac.setText(year + "-" + (monthOfYear + 1)
+                                                + "-" + dayOfMonth);
+                                    }
                                 }
-
                             }
                         }, 2000, 01, 11);
                 datePickerFragmentDialog.setMaxDate(System.currentTimeMillis());
