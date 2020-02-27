@@ -169,6 +169,7 @@ public class VisualizationFragment extends Fragment
 
         //Primera obtención de datos
         obtenerCazuelasUsuario();
+        primerasTemps();
         primeraVez = false;
         //enPrueba();
 
@@ -189,7 +190,7 @@ public class VisualizationFragment extends Fragment
                     if(currentPage > 0){
                         currentPage--;
                         currentCazuela = mCazuela.get(currentPage); //cazuelas
-                        tvTemperature.setText(" "); //Para que no aparezca la última tª de la caz.
+                        tvTemperature.setText("-- ºC"); //Para que no aparezca la última tª de la caz.
                         // anterior
                         tvPageIndicator.setText("Cazuela " + (currentPage + 1) + " de " +
                                 mCazuela.size());
@@ -331,7 +332,7 @@ public class VisualizationFragment extends Fragment
         super.onResume();
 //        FragmentTransaction ft = getFragmentManager().beginTransaction();
 //        ft.detach(this).attach(this).commit();
-        if(primeraVez){
+        if(primeraVez){ //para que al añadir una cazuela nueva desde otra activity se actualice
             obtenerCazuelasUsuario();
         }
         parar = false;
@@ -510,10 +511,10 @@ public class VisualizationFragment extends Fragment
 
                     Log.d(TAG, "onResponse: hits: " + hits.getHits().toString());
 
-                    for(int i = 0; i < hits.getHits().size(); i++){
+                    for(int i = 0; i < hits.getHits().size(); i++){                                 // esto por qué está aquí?
                         Log.d(TAG, "onResponse: data: " + hits.getHits().get(i)
                                 .getSource().toString());
-                        mMedicion.add(hits.getHits().get(i).getSource());
+                        mMedicion.add(hits.getHits().get(i).getSource());                           //añadimos último valor al array de mediciones anteriores
                     }
 
                     Log.d(TAG, "onResponse: size: " + mMedicion.size());
@@ -570,30 +571,30 @@ public class VisualizationFragment extends Fragment
         try {
             //Este es el JSON en el que especificamos los parámetros de la búsqueda
             queryJson = "{\n" +
-                    "  \"query\":{ \n" +
-                    "    \"bool\":{\n" +
-                    "      \"must\": [\n" +
-                    "        {\"match\": {\n" +
-                    "          \"idMac\": \"" + macC + "\"\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  },\n" +
-                    "  \"aggs\": {\n" +
-                    "    \"myAgg\": {\n" +
-                    "      \"top_hits\": {\n" +
-                    "        \"size\": 99,\n" +
-                    "        \"sort\": [\n" +
-                    "          {\n" +
-                    "            \"timestamp\":{\n" +
-                    "              \"order\": \"desc\"\n" +
-                    "            }\n" +
-                    "          }]\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}";
+                        "  \"query\":{ \n" +
+                        "    \"bool\":{\n" +
+                        "      \"must\": [\n" +
+                        "        {\"match\": {\n" +
+                        "          \"idMac\": \"" + macC + "\"\n" +
+                        "          }\n" +
+                        "        }\n" +
+                        "      ]\n" +
+                        "    }\n" +
+                        "  },\n" +
+                        "  \"aggs\": {\n" +
+                        "    \"myAgg\": {\n" +
+                        "      \"top_hits\": {\n" +
+                        "        \"size\": 99,\n" +
+                        "        \"sort\": [\n" +
+                        "          {\n" +
+                        "            \"timestamp\":{\n" +
+                        "              \"order\": \"desc\"\n" +
+                        "            }\n" +
+                        "          }]\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  }\n" +
+                        "}";
             jsonObject = new JSONObject(queryJson);
         }catch (JSONException jerr){
             Log.d("Error: ", jerr.toString());
@@ -652,8 +653,9 @@ public class VisualizationFragment extends Fragment
                     //Introducimos las temperaturas anteriores en la primera serie
                     for (int i = 0; i <= mMedicion.size() ; i++){
                         lastX++; //valor X coords.
+                        int ultT = mMedicion.get(i).getTempsInt().intValue();
                         //Añadir el array con las últimas X mediciones
-                        serie1.appendData(new DataPoint(lastX, tempOlla),
+                        serie1.appendData(new DataPoint(lastX, ultT),
                                 true, 500);
                     }
                 }catch (NullPointerException e){

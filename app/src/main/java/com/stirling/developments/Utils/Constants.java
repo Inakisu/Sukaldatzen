@@ -18,5 +18,5 @@ public class Constants {
 
     public static final String URL_ELASTICSEARCH                = "http://sukaldatzen.ddns.net:9200/";//"http://10.128.0.104:9200/";//"http://172.20.1.24:9200/";
 
-    public static final String elasticPassword                  = "Sukappdatzen2019";
+    public static final String elasticPassword                  = "Sukappdatzen2019"; //Sukappdatzen2019
 }
