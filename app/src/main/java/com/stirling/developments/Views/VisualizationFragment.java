@@ -167,15 +167,15 @@ public class VisualizationFragment extends Fragment
         mAuth = FirebaseAuth.getInstance();
         elCorreo = mAuth.getCurrentUser().getEmail();
 
-        //Primera obtención de datos
-        obtenerCazuelasUsuario();
-        primerasTemps();
-        primeraVez = false;
-        //enPrueba();
-
         //setteamos animación de parpadeo al indicador de temperatura
         animBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
                 R.anim.blink);
+
+        //Primera obtención de datos
+        obtenerCazuelasUsuario();
+//        primerasTemps();
+        primeraVez = false;
+        //enPrueba();
 
         //Inicializamos el gráfico
         iniciarGrafico(graphView);
@@ -289,10 +289,13 @@ public class VisualizationFragment extends Fragment
         //Controlamos si mostrar u ocultar el gráfico dependiendo del estado del switch
         switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
-                if(ONcendido)
+                if(ONcendido) {
+                    primerasTemps();
+                    iniciarGrafico(graphView);
                     graphView.setVisibility(View.VISIBLE);
-                else
+                }else{
                     graphView.setVisibility(View.GONE);
+                }
             }
         });
         //Inicializamos contador de cazuelas si las hay
@@ -334,6 +337,7 @@ public class VisualizationFragment extends Fragment
 //        ft.detach(this).attach(this).commit();
         if(primeraVez){ //para que al añadir una cazuela nueva desde otra activity se actualice
             obtenerCazuelasUsuario();
+            primerasTemps();
         }
         parar = false;
     }
@@ -567,7 +571,7 @@ public class VisualizationFragment extends Fragment
         HashMap<String, String> headerMap = new HashMap<String, String>();
         headerMap.put("Authorization", Credentials.basic("android",
                 mElasticSearchPassword));
-        String searchString = "";
+//        String searchString = "";
         try {
             //Este es el JSON en el que especificamos los parámetros de la búsqueda
             queryJson = "{\n" +
@@ -653,7 +657,7 @@ public class VisualizationFragment extends Fragment
                     //Introducimos las temperaturas anteriores en la primera serie
                     for (int i = 0; i <= mMedicion.size() ; i++){
                         lastX++; //valor X coords.
-                        int ultT = mMedicion.get(i).getTempsInt().intValue();
+                        Float ultT = mMedicion.get(i).getTempsInt();
                         //Añadir el array con las últimas X mediciones
                         serie1.appendData(new DataPoint(lastX, ultT),
                                 true, 500);
