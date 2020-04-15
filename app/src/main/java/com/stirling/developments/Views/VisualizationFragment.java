@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +27,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.jjoe64.graphview.GraphView;
@@ -60,6 +67,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -102,8 +110,9 @@ public class VisualizationFragment extends Fragment
     private int lastX;
 
     private final static int INTERVAL = 3500;
-    private LineGraphSeries<DataPoint> serie1;
-    private LineGraphSeries<DataPoint> serie2;
+//    private LineGraphSeries<DataPoint> serie1;
+//    private LineGraphSeries<DataPoint> serie2;
+    private List<Entry> entries = new ArrayList<Entry>();
 
     private boolean seguir = false;
     private boolean rCorriendo = false;
@@ -129,7 +138,7 @@ public class VisualizationFragment extends Fragment
     @BindView(R.id.bSetTime) TextView bSetTimeAlarm;
     @BindView(R.id.alarmLayout) LinearLayout llAlarm;
 //    @BindView(R.id.textNombreCazuela) TextView nombreCazuela;
-    @BindView(R.id.graph) GraphView graphView;
+    @BindView(R.id.chart) LineChart chart;
 //    @BindView(R.id.botonGrafico) Button botonGraf;
     @BindView(R.id.switchGrafico) Switch switchGraph;
     @BindView(R.id.imgAlerta) ImageView imgAlerta;
@@ -151,8 +160,8 @@ public class VisualizationFragment extends Fragment
 //                Context.MODE_PRIVATE);
         ButterKnife.bind(this, view);
         lastX = 0;
-        serie1 = new LineGraphSeries<>(); //añadirle las temperaturas anteriores a la actual
-        serie2 = new LineGraphSeries<>();
+//        serie1 = new LineGraphSeries<>(); //añadirle las temperaturas anteriores a la actual
+//        serie2 = new LineGraphSeries<>();
         mMedicion = new ArrayList<Source>(); //Mediciones
 
         //Inicializamos la API de elasticsearch
@@ -178,9 +187,9 @@ public class VisualizationFragment extends Fragment
         //enPrueba();
 
         //Inicializamos el gráfico
-        iniciarGrafico(graphView);
+        iniciarGrafico(chart);
         //..y lo ocultamos
-        graphView.setVisibility(View.GONE);
+        chart.setVisibility(View.GONE);
 
         //Creamos el handler para detectar swipes
         new SwipeDetector(view).setOnSwipeListener(new SwipeDetector.onSwipeEvent(){
@@ -196,16 +205,16 @@ public class VisualizationFragment extends Fragment
                                 mCazuela.size());
                         goToAppropriateCazuela();
 //                        lastX = 0;
-                        graphView.removeAllSeries();
+//                        graphView.removeAllSeries();
                         primerasTemps();
                         //Inicializamos el gráfico
-                        iniciarGrafico(graphView);
+                        iniciarGrafico(chart);
                         switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
                             public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
                                 if(ONcendido)
-                                    graphView.setVisibility(View.VISIBLE);
+                                    chart.setVisibility(View.VISIBLE);
                                 else
-                                    graphView.setVisibility(View.GONE);
+                                    chart.setVisibility(View.GONE);
                             }
                         });
                         actualizarTemperatura(); //para que se actualice al instante de cambiar
@@ -224,15 +233,14 @@ public class VisualizationFragment extends Fragment
                         goToAppropriateCazuela();
 //                        lastX = 0;
                         primerasTemps(); //obtenemos últimos valores almacenados en la BD
-                        graphView.removeAllSeries();
                         //Inicializamos el gráfico
-                        iniciarGrafico(graphView);
+                        iniciarGrafico(chart);
                         switchGraph.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
                             public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
                                 if(ONcendido)
-                                    graphView.setVisibility(View.VISIBLE);
+                                    chart.setVisibility(View.VISIBLE);
                                 else
-                                    graphView.setVisibility(View.GONE);
+                                    chart.setVisibility(View.GONE);
                             }
                         });
                         actualizarTemperatura(); // para que se actualice al instante de cambiar
@@ -291,10 +299,10 @@ public class VisualizationFragment extends Fragment
             public void onCheckedChanged(CompoundButton buttonView, boolean ONcendido) {
                 if(ONcendido) {
                     primerasTemps();
-                    iniciarGrafico(graphView);
-                    graphView.setVisibility(View.VISIBLE);
+                    iniciarGrafico(chart);
+                    chart.setVisibility(View.VISIBLE);
                 }else{
-                    graphView.setVisibility(View.GONE);
+                    chart.setVisibility(View.GONE);
                 }
             }
         });
@@ -541,9 +549,10 @@ public class VisualizationFragment extends Fragment
                     if(!tempActual.equals(tempAnterior)){
                         Float taInt = hits.getHits().get(0).getSource().getTempsInt();
                         tempOlla = taInt;
-                        lastX++;//sustituir por hora?
-                        serie2.appendData(new DataPoint(lastX ,taInt)
-                                ,true,1000);
+                        lastX++;//sustituir por hora? //ver qué permiten las querys de ES
+//                        serie2.appendData(new DataPoint(lastX ,taInt)
+//                                ,true,1000);
+                        entries.add(new Entry(lastX, taInt));
                     }
                     tempAnterior = tempActual;
 
@@ -659,8 +668,7 @@ public class VisualizationFragment extends Fragment
                         lastX++; //valor X coords.
                         Float ultT = mMedicion.get(i).getTempsInt();
                         //Añadir el array con las últimas X mediciones
-                        serie1.appendData(new DataPoint(lastX, ultT),
-                                true, 500);
+                        entries.add(new Entry(lastX, ultT));
                     }
                 }catch (NullPointerException e){
                     Log.e(TAG, "onResponse: NullPointerException: " + e.getMessage() );
@@ -672,30 +680,25 @@ public class VisualizationFragment extends Fragment
                     Log.e(TAG, "onResponse: IOException: " + e.getMessage() );
                 }
             }
-
             @Override
             public void onFailure(Call<Example> call, Throwable t) {
-
             }
         });
     }
 
-    private void iniciarGrafico(GraphView graph){
-        //Configuramos el viewport
-        Viewport viewport = graphView.getViewport();
-        viewport.setScrollable(true);
-        viewport.setXAxisBoundsManual(true);//ver qué hacen estas historias
-        viewport.setMinX(4);
-        viewport.setMaxX(80);//ver qué hace esta historia
-        viewport.setScalable(true);
-
-        serie1.setTitle("Temperaturas anteriores");
-        serie1.setAnimated(true);
-        graphView.addSeries(serie1);
-
-        serie2.setTitle("Temperaturas en directo");
-        serie2.setAnimated(true);
-        graphView.addSeries(serie2);
+    private void iniciarGrafico(LineChart graph){
+        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+        dataSet.setColor(ContextCompat.getColor(getContext(), R.color.colorDataSet));
+        Description description = chart.getDescription();
+        Legend legend = chart.getLegend();
+//        dataSet.setValueTextColor(...); // styling, ...
+        LineData lineData = new LineData(dataSet);
+        legend.setEnabled(false);
+        description.setText(" ");
+       //lineData.set
+        chart.setData(lineData);
+        chart.notifyDataSetChanged(); // let the chart know it's data changed
+        chart.invalidate(); // refresh
     }
 
     private void goToAppropriateCazuela(){
